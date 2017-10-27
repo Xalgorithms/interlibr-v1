@@ -5,6 +5,7 @@
     "type": "DOCKER",
     "docker": {
       "image": "xalgorithms/xadf-respond-service:latest-development",
+      "forcePullImage": true,
       "network": "BRIDGE",
       "portMappings": [
         {
@@ -20,5 +21,16 @@
   "env": {
     "MARATHON_TASK_LAUNCH_TIMEOUT": "900000"
   },
-  "acceptedResourceRoles": ["slave_public"]
+  "acceptedResourceRoles": ["slave_public"],
+  "healthChecks": [
+    {
+      "path": "/status",
+      "protocol": "HTTP",
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
+  ]
 }
