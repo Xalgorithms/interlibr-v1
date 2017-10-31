@@ -1,0 +1,14 @@
+version: '2'
+services:
+  cassandra:
+    image: cassandra
+    ports:
+      - "9042:9042"
+  kafka:
+    image: spotify/kafka
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+    environment:
+      ADVERTISED_HOST: localhost
+      ADVERTISED_PORT: 9092
