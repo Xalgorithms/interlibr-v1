@@ -1,0 +1,28 @@
+CREATE KEYSPACE xadf WITH REPLICATION =  { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+
+CREATE TYPE xadf.name_and_id (id text, name text);
+CREATE TYPE xadf.identifier (scheme_agency frozen <name_and_id>, name frozen <name_and_id>, version text, data_uri text, scheme_uri text);
+CREATE TYPE xadf.code (name text, language_id text, value text, version text, list frozen <name_and_id>, agency frozen <name_and_id>);
+CREATE TYPE xadf.named_code (name text, code frozen <code>);
+CREATE TYPE xadf.address (format frozen <code>, street set<text>, number text, code text, city text, subentity frozen <named_code>, country frozen <named_code>);
+CREATE TYPE xadf.location (address frozen <address>);
+CREATE TYPE xadf.person (surname text, names set<text>);
+CREATE TYPE xadf.party (id frozen <identifier>, name text, address frozen <address>, location frozen <location>, person frozen <person>, industry frozen <code>);
+CREATE TYPE xadf.measure (value decimal, unit text);
+CREATE TYPE xadf.amount (value decimal, currency_code text);
+
+CREATE TYPE xadf.document_ids (document_id text, version_id text, customization_id text);
+CREATE TYPE xadf.pricing (orderable_factor decimal, price frozen <amount>, quantity frozen <measure>);
+CREATE TYPE xadf.envelope (ids frozen <document_ids>, issued timestamp, currency text, supplier frozen <party>, customer frozen <party>, buyer frozen <party>);
+CREATE TYPE xadf.tax_scheme (id frozen <identifier>, name text, type frozen <code>, currency frozen <code>);
+CREATE TYPE xadf.tax_exemption (code frozen <code>, reason text);
+CREATE TYPE xadf.tax_category (id frozen <identifier>, percent decimal, base frozen <measure>, unit frozen <amount>, exemption frozen <tax_exemption>, scheme frozen <tax_scheme>);
+CREATE TYPE xadf.tax_component (amount frozen <amount>, taxable frozen <amount>, categories set<frozen <tax_category>>);
+CREATE TYPE xadf.item_tax (total frozen <amount>, components list<frozen <tax_component>>);
+CREATE TYPE xadf.item (id text, price frozen <amount>, quantity frozen <measure>, pricing frozen <pricing>, tax frozen <item_tax>);
+CREATE TYPE xadf.tax_subtotal (amount frozen <amount>, taxable frozen <amount>, category frozen <tax_category>, percent decimal, base frozen <measure>, unit frozen <amount>);
+CREATE TYPE xadf.tax_total (amount frozen <amount>, subtotals set<frozen <tax_subtotal>>);
+CREATE TYPE xadf.monetary_total (payable frozen <amount>, extension frozen <amount>, tax_exclusive frozen <amount>, tax_inclusive frozen <amount>);
+CREATE TYPE xadf.totals (monetary frozen <monetary_total>, tax frozen <tax_total>, withholding frozen <tax_total>);
+
+CREATE TABLE xadf.invoices (id uuid PRIMARY KEY, envelope frozen <envelope>, items set<frozen <item>>, totals frozen <totals>);
