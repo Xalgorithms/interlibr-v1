@@ -4,6 +4,8 @@ services:
     image: cassandra
     ports:
       - "9042:9042"
+    volumes:
+      - ./data/cassandra-1:/var/lib/cassandra:rw
   kafka:
     image: spotify/kafka
     ports:
@@ -36,7 +38,7 @@ services:
       - 4040:4040
       - 6066:6066
       - 7077:7077
-      - 8080:8080      
+      - 8080:8080
 
   spark-worker:
     image: xalgorithms/spark-dev:2.2.0-0.0.1
@@ -61,4 +63,4 @@ services:
       - 8081:8081
     volumes:
       - ./spark-conf/worker:/conf
-      - ./spark-worker-data:/tmp/data      
+      - ./spark-worker-data:/tmp/data
