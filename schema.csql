@@ -32,7 +32,10 @@ CREATE TYPE monetary_total (payable frozen <amount>, extension frozen <amount>, 
 CREATE TYPE totals (monetary frozen <monetary_total>, tax frozen <tax_total>, withholding frozen <tax_total>);
 
 // invoice document table
-CREATE TABLE invoices (id uuid PRIMARY KEY, envelope frozen <envelope>, items set<frozen <item>>, totals frozen <totals>);
+CREATE TABLE invoices (id uuid PRIMARY KEY, envelope frozen <envelope>, items list<frozen <item>>, totals frozen <totals>);
+
+// revision table
+CREATE TABLE revisions (id uuid PRIMARY KEY, items list<frozen <item>>);
 
 // RULES
 
@@ -49,7 +52,7 @@ CREATE TYPE filter (
   path text,
   value text
 );
-  
+
 CREATE TYPE filters (
   envelope set<frozen <filter>>,
   item     set<frozen <filter>>
