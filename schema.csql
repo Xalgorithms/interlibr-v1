@@ -5,21 +5,26 @@ USE xadf;
 // DOCUMENTS
 
 // basic types used in stored documents derived from UBL
-CREATE TYPE name_and_id (id text, name text);
-CREATE TYPE identifier (scheme_agency frozen <name_and_id>, name frozen <name_and_id>, version text, data_uri text, scheme_uri text);
-CREATE TYPE code (name text, language_id text, value text, version text, list frozen <name_and_id>, agency frozen <name_and_id>);
+CREATE TYPE identifier (agency_id text, agency_name text, data_uri text, version_id text, id text, name text, uri text);
+CREATE TYPE code (language_id text, agency_id text, agency_name text, id text, name text, scheme_uri text, uri text, version_id text, name, value text);
+
+// TODO: these named variants might be related to identifier, code
 CREATE TYPE named_code (name text, code frozen <code>);
+CREATE TYPE named_identifier (name text, id frozen <identifier>);
+
+// TODO: address might have an id... investigate
 CREATE TYPE address (format frozen <code>, street set<text>, number text, code text, city text, subentity frozen <named_code>, country frozen <named_code>);
-CREATE TYPE location (address frozen <address>);
+CREATE TYPE location (id frozen <identifier>, address frozen <address>);
 CREATE TYPE person (surname text, names set<text>);
-CREATE TYPE party (id frozen <identifier>, name text, address frozen <address>, location frozen <location>, person frozen <person>, industry frozen <code>);
+CREATE TYPE party (id frozen <identifier>, name text, contact frozen <named_identifier>, address frozen <address>, location frozen <location>, person frozen <person>, industry frozen <code>);
 CREATE TYPE measure (value decimal, unit text);
 CREATE TYPE amount (value decimal, currency_code text);
+CREATE TYPE period (starts timestamp, ends timestamp);
 
 // complex types used to store invoice data
 CREATE TYPE document_ids (document_id text, version_id text, customization_id text);
 CREATE TYPE pricing (orderable_factor decimal, price frozen <amount>, quantity frozen <measure>);
-CREATE TYPE envelope (ids frozen <document_ids>, issued timestamp, currency text, supplier frozen <party>, customer frozen <party>, buyer frozen <party>);
+CREATE TYPE envelope (ids frozen <document_ids>, issued timestamp, period frozen<period>, currency text, parties map<text, frozen <party>>);
 CREATE TYPE tax_scheme (id frozen <identifier>, name text, type frozen <code>, currency frozen <code>);
 CREATE TYPE tax_exemption (code frozen <code>, reason text);
 CREATE TYPE tax_category (id frozen <identifier>, percent decimal, base frozen <measure>, unit frozen <amount>, exemption frozen <tax_exemption>, scheme frozen <tax_scheme>);
