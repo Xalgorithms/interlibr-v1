@@ -30,7 +30,7 @@ CREATE TYPE tax_exemption (code frozen <code>, reason text);
 CREATE TYPE tax_category (id frozen <identifier>, percent decimal, base frozen <measure>, unit frozen <amount>, exemption frozen <tax_exemption>, scheme frozen <tax_scheme>);
 CREATE TYPE tax_component (amount frozen <amount>, taxable frozen <amount>, categories set<frozen <tax_category>>);
 CREATE TYPE item_tax (total frozen <amount>, components list<frozen <tax_component>>);
-CREATE TYPE item (id text, price frozen <amount>, quantity frozen <measure>, pricing frozen <pricing>, tax frozen <item_tax>);
+CREATE TYPE item (id frozen <identifier>, price frozen <amount>, quantity frozen <measure>, pricing frozen <pricing>, tax frozen <item_tax>);
 CREATE TYPE tax_subtotal (amount frozen <amount>, taxable frozen <amount>, category frozen <tax_category>, percent decimal, base frozen <measure>, unit frozen <amount>);
 CREATE TYPE tax_total (amount frozen <amount>, subtotals set<frozen <tax_subtotal>>);
 CREATE TYPE monetary_total (payable frozen <amount>, extension frozen <amount>, tax_exclusive frozen <amount>, tax_inclusive frozen <amount>);
@@ -43,90 +43,6 @@ CREATE TABLE invoices (id uuid PRIMARY KEY, envelope frozen <envelope>, items li
 CREATE TABLE revisions (id uuid PRIMARY KEY, items list<frozen <item>>);
 
 // RULES
-
-// these needs to be different
-CREATE TYPE formula (val text);
-
-CREATE TYPE effective_dates (starts timestamp, ends timestamp);
-CREATE TYPE roles (author text, maintainer text, comitter text);
-
-// for now, filters merely validate whether a path matches the
-// expected value. refer to invoices table for paths
-// e.g. "envelope.parties.seller.location.address.subentity.value" === "CA_QC"
-CREATE TYPE filter (
-  path text,
-  value text
-);
-
-CREATE TYPE filters (
-  envelope set<frozen <filter>>,
-  item     set<frozen <filter>>
-);
-
-// criterion is whether some path using some operator matches a value
-// current operators we should implement:
-// - equal
-// - not_equal
-// - less_than
-// - less_than_equal
-// - greater_than
-// - greater_than_equal
-CREATE TYPE criterion (
-  path       text,
-  op         text,
-  value      text
-);
-
-// We store a "step" as an action name and an id that references
-// a row in "action_<action text>"
-CREATE TYPE step (
-  action text,
-  details_id uuid
-);
-
-CREATE TYPE reference (
-  namespace text,
-  name      text,
-  version   text
-);
-
-CREATE TABLE rules (
-  id          text PRIMARY KEY,
-  ref         frozen <reference>,
-  // we will order rules, during selection, by criticality
-  criticality text,
-  // release should be one of (experimental, development, testing, production)
-  release     text,
-  description text,
-  effective   frozen <effective_dates>,
-  roles       frozen <roles>,
-  // a collection of the reference tables that this rule will use
-  // only these can be used in "lookup" actions
-  tables      set<uuid>,
-  filters     frozen<filters>,
-  // formulae defined IN this rule
-  formulae    map<text, frozen <formula>>,
-  steps       set<frozen <step>>
-);
-
-CREATE TABLE actions_lookup (
-  id       uuid PRIMARY KEY,
-  table_id uuid,
-  criteria set<frozen <criterion>>,
-  values   map<text, text>
-);
-
-CREATE TABLE actions_apply (
-  id      uuid PRIMARY KEY,
-  // we reference the formulae using a name
-  // they can be either a built-in formula OR a key
-  // in the rule table's formulae map
-  formula text,
-  args    set<text>,
-  assigns text
-);
-
-CREATE TABLE reference_tables (
-  id        uuid PRIMARY KEY,
-  ref       frozen <reference>,
-  url       text);
+CREATE TABLE envelope_when_keys (key text);
+CREATE TABLE envelope_whens (key text, op smallint, val text, rule_id text);
+CREATE TABLE effective (country text, region text, timezone text, starts datetime, ends datetime, rule_id text);
