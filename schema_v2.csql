@@ -1,0 +1,13 @@
+DROP KEYSPACE xadf;
+CREATE KEYSPACE xadf WITH REPLICATION =  { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+USE xadf;
+
+CREATE TABLE effective_rules (   
+  rule_id   uuid PRIMARY KEY,
+  country   text,
+  region    text,
+  version   text,
+  timezone  text,
+  starts    timestamp,
+  ends      timestamp
+);
