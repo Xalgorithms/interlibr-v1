@@ -8,7 +8,9 @@ db._collection("rules").truncate();
 db._collection("rules").save({ 
     "_key" : "d98c0556-af10-42e6-a94c-0fd7af754a68", 
     "_id" : "rules/d98c0556-af10-42e6-a94c-0fd7af754a68", 
-    "_rev" : "_WDR24-u---", 
+    "_rev" : "_WDR24-u---",
+    "rule_id" : "RLcs303f",
+    "version" : "1.2.33",
     "items" : [ 
       [ 
         { 

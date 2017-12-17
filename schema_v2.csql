@@ -6,7 +6,6 @@ CREATE TABLE effective_rules (
   rule_id   uuid PRIMARY KEY,
   country   text,
   region    text,
-  version   text,
   timezone  text,
   starts    timestamp,
   ends      timestamp
