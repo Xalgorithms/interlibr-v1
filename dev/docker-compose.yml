@@ -1,4 +1,11 @@
 version: '2'
+
+# Have a specific network for jupyter (this avoid 8081 conflicts with
+# spark AND gives us a good name for passing to the spawned images
+networks:
+  jupyter:
+    driver: bridge
+    
 services:
   jupyter:
     image: xalgorithms/jupyterhub-live:latest-development
@@ -8,7 +15,13 @@ services:
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
       OAUTH_CALLBACK_URL: "http://localhost:8000/hub/oauth_callback"
-      
+      DOCKER_SPAWNER_NETWORK_NAME: dev_jupyter
+    volumes:
+      # this connects the outer docker INTO the container, this
+      # allows the DockerSpawner to locate the Docker daemon
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - jupyter
   
   arango:
     image: arangodb/arangodb
