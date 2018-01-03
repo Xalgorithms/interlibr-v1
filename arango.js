@@ -55,3 +55,46 @@ db._collection("rules").save({
     ] 
 } );
 db._collection("rules").all().toArray();
+
+db._createDocumentCollection("invoices");
+db._collection("invoices").truncate();
+
+db._collection("invoices").save(
+{
+  "items":[
+     {
+        "id": "111",
+        "price": {
+           "value": 100,
+           "currency_code": "AMD"
+        },
+        "quantity": {
+           "value": 100,
+           "unit": "AMD"
+        },
+        "pricing": {
+           "orderable_factor": 100,
+           "price": {
+              "value": 100,
+              "currency_code": "AMD"
+           },
+           "quantity": {
+              "value": 100,
+              "unit": "AMD"
+           }
+        }
+     }
+  ],
+  "envelope": {
+    "issued": "",
+    "country": "CA",
+    "region": "Ontario",
+    "party": "committer",
+    "period": {
+      "timezone": "",
+      "starts": "",
+      "ends": ""
+    }
+  }
+}
+)
