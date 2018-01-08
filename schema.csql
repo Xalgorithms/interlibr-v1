@@ -2,47 +2,24 @@ DROP KEYSPACE xadf;
 CREATE KEYSPACE xadf WITH REPLICATION =  { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
 USE xadf;
 
-// DOCUMENTS
-
-// basic types used in stored documents derived from UBL
-CREATE TYPE identifier (agency_id text, agency_name text, data_uri text, version_id text, id text, name text, uri text);
-CREATE TYPE code (language_id text, agency_id text, agency_name text, id text, name text, scheme_uri text, uri text, version_id text, name, value text);
-
-// TODO: these named variants might be related to identifier, code
-CREATE TYPE named_code (name text, code frozen <code>);
-CREATE TYPE named_identifier (name text, id frozen <identifier>);
-
-// TODO: address might have an id... investigate
-CREATE TYPE address (format frozen <code>, street set<text>, number text, code text, city text, subentity frozen <named_code>, country frozen <named_code>);
-CREATE TYPE location (id frozen <identifier>, address frozen <address>);
-CREATE TYPE person (surname text, names set<text>);
-CREATE TYPE party (id frozen <identifier>, name text, contact frozen <named_identifier>, address frozen <address>, location frozen <location>, person frozen <person>, industry frozen <code>);
-CREATE TYPE measure (value decimal, unit text);
-CREATE TYPE amount (value decimal, currency_code text);
-CREATE TYPE period (starts timestamp, ends timestamp);
-
-// complex types used to store invoice data
-CREATE TYPE document_ids (document_id text, version_id text, customization_id text);
-CREATE TYPE pricing (orderable_factor decimal, price frozen <amount>, quantity frozen <measure>);
-CREATE TYPE envelope (ids frozen <document_ids>, issued timestamp, period frozen<period>, currency text, parties map<text, frozen <party>>);
-CREATE TYPE tax_scheme (id frozen <identifier>, name text, type frozen <code>, currency frozen <code>);
-CREATE TYPE tax_exemption (code frozen <code>, reason text);
-CREATE TYPE tax_category (id frozen <identifier>, percent decimal, base frozen <measure>, unit frozen <amount>, exemption frozen <tax_exemption>, scheme frozen <tax_scheme>);
-CREATE TYPE tax_component (amount frozen <amount>, taxable frozen <amount>, categories set<frozen <tax_category>>);
-CREATE TYPE item_tax (total frozen <amount>, components list<frozen <tax_component>>);
-CREATE TYPE item (id frozen <identifier>, price frozen <amount>, quantity frozen <measure>, pricing frozen <pricing>, tax frozen <item_tax>);
-CREATE TYPE tax_subtotal (amount frozen <amount>, taxable frozen <amount>, category frozen <tax_category>, percent decimal, base frozen <measure>, unit frozen <amount>);
-CREATE TYPE tax_total (amount frozen <amount>, subtotals set<frozen <tax_subtotal>>);
-CREATE TYPE monetary_total (payable frozen <amount>, extension frozen <amount>, tax_exclusive frozen <amount>, tax_inclusive frozen <amount>);
-CREATE TYPE totals (monetary frozen <monetary_total>, tax frozen <tax_total>, withholding frozen <tax_total>);
-
-// invoice document table
-CREATE TABLE invoices (id uuid PRIMARY KEY, envelope frozen <envelope>, items list<frozen <item>>, totals frozen <totals>);
-
-// revision table
-CREATE TABLE revisions (id uuid PRIMARY KEY, items list<frozen <item>>);
-
 // RULES
-CREATE TABLE envelope_when_keys (key text);
-CREATE TABLE envelope_whens (key text, op smallint, val text, rule_id text);
-CREATE TABLE effective (country text, region text, timezone text, starts datetime, ends datetime, rule_id text);
+CREATE TABLE when_keys (
+  section text,
+  key text,
+  PRIMARY KEY (section, key));
+CREATE TABLE whens (
+  section text,
+  key text,
+  op text,
+  val text,
+  rule_id text,
+  PRIMARY KEY (section, key));
+CREATE TABLE effective (
+  country text,
+  region text,
+  timezone text,
+  starts timestamp,
+  ends timestamp,
+  party text,
+  rule_id text,
+  PRIMARY KEY (rule_id));
