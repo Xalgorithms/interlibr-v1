@@ -31,7 +31,12 @@ services:
       ARANGO_NO_AUTH: 1
     volumes:
       - ./data/arango:/var/lib/arangodb
-    
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+
   cassandra:
     image: cassandra
     ports:
