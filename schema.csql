@@ -13,7 +13,7 @@ CREATE TABLE whens (
   op text,
   val text,
   rule_id text,
-  PRIMARY KEY (section, key));
+  PRIMARY KEY (rule_id, section, key));
 CREATE TABLE effective (
   country text,
   region text,
