@@ -1,0 +1,17 @@
+require 'thor'
+
+module XACLI
+  class Fabric < Thor
+    desc 'submit <path>', 'Submits a document to the Fabric'
+    option :raw, type: :boolean, aliases: :r
+    def submit(path)
+    end
+  end
+  
+  class XA < Thor
+    desc 'fabric SUBCOMMAND ...ARGS', 'communicate with the fabric'
+    subcommand 'fabric', Fabric
+  end
+end
+
+XACLI::XA.start(ARGV)
