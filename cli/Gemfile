@@ -1,0 +1,15 @@
+source 'https://rubygems.org'
+
+ruby '2.4.2'
+
+gem 'activesupport'
+gem 'faraday'
+gem 'faraday_middleware'
+gem 'rainbow'
+gem 'thor'
+gem 'xa-rules', git: 'https://github.com/Xalgorithms/xa-rules.git'
+gem 'xa-ubl', git: 'https://github.com/Xalgorithms/xa-ubl.git'
+
+group :development do
+  gem 'pry'
+end

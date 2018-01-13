@@ -1,0 +1,67 @@
+GIT
+  remote: https://github.com/Xalgorithms/xa-rules.git
+  revision: c5f2b0a2bf85083441e335a3b82a2183c9465e52
+  specs:
+    xa-rules (0.1.1)
+      faraday
+      faraday_middleware
+      parslet
+
+GIT
+  remote: https://github.com/Xalgorithms/xa-ubl.git
+  revision: b81edf4f6b4664deb7daaacaec3c3a4ab105092e
+  specs:
+    xa-ubl (0.0.8)
+      activesupport
+      nokogiri
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    activesupport (5.1.4)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (~> 0.7)
+      minitest (~> 5.1)
+      tzinfo (~> 1.1)
+    coderay (1.1.2)
+    concurrent-ruby (1.0.5)
+    faraday (0.13.1)
+      multipart-post (>= 1.2, < 3)
+    faraday_middleware (0.12.2)
+      faraday (>= 0.7.4, < 1.0)
+    i18n (0.9.1)
+      concurrent-ruby (~> 1.0)
+    method_source (0.9.0)
+    mini_portile2 (2.3.0)
+    minitest (5.11.1)
+    multipart-post (2.0.0)
+    nokogiri (1.8.1)
+      mini_portile2 (~> 2.3.0)
+    parslet (1.8.1)
+    pry (0.11.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
+    rainbow (3.0.0)
+    thor (0.20.0)
+    thread_safe (0.3.6)
+    tzinfo (1.2.4)
+      thread_safe (~> 0.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activesupport
+  faraday
+  faraday_middleware
+  pry
+  rainbow
+  thor
+  xa-rules!
+  xa-ubl!
+
+RUBY VERSION
+   ruby 2.4.2p198
+
+BUNDLED WITH
+   1.16.1
