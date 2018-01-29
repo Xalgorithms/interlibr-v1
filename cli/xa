@@ -1,71 +1,13 @@
 #!/usr/bin/env ruby
-require 'faraday'
-require 'faraday_middleware'
-require 'rainbow'
 require 'thor'
-require 'xa/ubl/auto'
 
-class Display
-  def self.info(m)
-    puts Rainbow("# #{m}").blue
-  end
+require_relative './clients/schedule'
+require_relative './subcommands/fabric'
+require_relative './support/display'
 
-  def self.give(m)
-    puts Rainbow("> #{m}").yellow
-  end
-
-  def self.got_ok(m)
-    puts Rainbow("< #{m}").green
-  end
-
-  def self.got_fail(m)
-    puts Rainbow("< #{m}").red
-  end
-
-  def self.got(resp)
-    if resp.status == 200
-      got_ok(yield(resp.body))
-    else
-      got_fail('failed')
-    end
-  end
+class XACLI < Thor
+  desc 'fabric SUBCOMMAND ...ARGS', 'communicate with the fabric'
+  subcommand 'fabric', Subcommands::Fabric
 end
 
-class ScheduleClient
-  def initialize(url)
-    @conn = Faraday.new(url) do |f|
-      f.request(:json) 
-      f.response(:json, :content_type => /\bjson$/)
-      f.adapter(Faraday.default_adapter)
-    end
-  end
-  
-  def schedule(doc)
-    @conn.post('/actions', { name: 'document-add', payload: doc })
-  end
-end
-
-module XACLI
-  class Fabric < Thor
-    class_option :schedule_url, default: 'http://localhost:9292', aliases: :s
-    
-    desc 'submit <path>', 'Submits a document to the Fabric'
-    option :raw, type: :boolean, aliases: :r
-    def submit(path)
-      Display.give("sending #{path}")
-      ::XA::UBL::Auto.parse(:invoice, path) do |doc|
-        cl = ScheduleClient.new('http://localhost:9292')
-        Display.got(cl.schedule(doc)) do |o|
-          "scheduled"
-        end
-      end
-    end
-  end
-  
-  class XA < Thor
-    desc 'fabric SUBCOMMAND ...ARGS', 'communicate with the fabric'
-    subcommand 'fabric', Fabric
-  end
-end
-
-XACLI::XA.start(ARGV)
+XACLI.start(ARGV)
