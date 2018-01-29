@@ -3,7 +3,6 @@ require 'thor'
 
 require_relative './clients/schedule'
 require_relative './subcommands/fabric'
-require_relative './support/display'
 
 class XACLI < Thor
   desc 'fabric SUBCOMMAND ...ARGS', 'communicate with the fabric'

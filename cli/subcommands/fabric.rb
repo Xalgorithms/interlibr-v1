@@ -1,6 +1,8 @@
 require 'thor'
 require 'xa/ubl/auto'
 
+require_relative '../support/display'
+
 module Subcommands
   class Fabric < Thor
     class_option :schedule_url, default: 'http://localhost:9292', aliases: :s
