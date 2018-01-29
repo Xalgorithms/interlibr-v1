@@ -23,15 +23,6 @@ services:
     networks:
       - jupyter
   
-  arango:
-    image: arangodb/arangodb
-    ports:
-      - "8529:8529"
-    environment:
-      ARANGO_NO_AUTH: 1
-    volumes:
-      - ./data/arango:/var/lib/arangodb
-
   mongo:
     image: mongo
     ports:
@@ -58,7 +49,6 @@ services:
     environment:
       MASTER: spark://spark-master:7077
       SPARK_CONF_DIR: /conf
-      SPARK_PUBLIC_DNS: localhost
     volumes:
       - ./spark-conf/master:/conf
       - ./spark-master-data:/tmp/data
@@ -76,6 +66,8 @@ services:
       - 6066:6066
       - 7077:7077
       - 8080:8080
+    links:
+      - mongo
 
   spark-worker:
     image: xalgorithms/spark-dev:2.2.0-0.0.1
@@ -86,9 +78,9 @@ services:
       SPARK_WORKER_MEMORY: 1g
       SPARK_WORKER_PORT: 8881
       SPARK_WORKER_WEBUI_PORT: 8081
-      SPARK_PUBLIC_DNS: localhost
     links:
       - spark-master
+      - mongo
     expose:
       - 7012
       - 7013
