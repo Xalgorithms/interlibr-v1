@@ -1,0 +1,74 @@
+version: '2'
+
+services:
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  cassandra:
+    image: cassandra
+    ports:
+      - "9042:9042"
+    volumes:
+      - ./data/cassandra-1:/var/lib/cassandra:rw
+
+  kafka:
+    image: spotify/kafka
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+    environment:
+      ADVERTISED_HOST: localhost
+      ADVERTISED_PORT: 9092
+
+  spark-master:
+    image: xalgorithms/spark-dev:2.2.0-0.0.1
+    command: /apps/spark/bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
+    environment:
+      MASTER: spark://spark-master:7077
+      SPARK_CONF_DIR: /conf
+    volumes:
+      - ./spark-conf/master:/conf
+      - ./spark-master-data:/tmp/data
+    expose:
+      - 7001
+      - 7002
+      - 7003
+      - 7004
+      - 7005
+      - 7006
+      - 7077
+      - 6066
+    ports:
+      - 4040:4040
+      - 6066:6066
+      - 7077:7077
+      - 8080:8080
+    links:
+      - mongo
+
+  spark-worker:
+    image: xalgorithms/spark-dev:2.2.0-0.0.1
+    command: /apps/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    environment:
+      SPARK_CONF_DIR: /conf
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_PORT: 8881
+      SPARK_WORKER_WEBUI_PORT: 8081
+    links:
+      - spark-master
+      - mongo
+    expose:
+      - 7012
+      - 7013
+      - 7014
+      - 7015
+      - 7016
+      - 8881
+    ports:
+      - 8081:8081
+    volumes:
+      - ./spark-conf/worker:/conf
+      - ./spark-worker-data:/tmp/data

@@ -23,6 +23,8 @@ GEM
       i18n (~> 0.7)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
+    cassandra-driver (3.2.2)
+      ione (~> 1.2)
     coderay (1.1.2)
     concurrent-ruby (1.0.5)
     faraday (0.13.1)
@@ -31,9 +33,11 @@ GEM
       faraday (>= 0.7.4, < 1.0)
     i18n (0.9.1)
       concurrent-ruby (~> 1.0)
+    ione (1.2.4)
     method_source (0.9.0)
     mini_portile2 (2.3.0)
     minitest (5.11.1)
+    multi_json (1.13.1)
     multipart-post (2.0.0)
     nokogiri (1.8.1)
       mini_portile2 (~> 2.3.0)
@@ -42,6 +46,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
     rainbow (3.0.0)
+    ruby-kafka (0.5.2)
     thor (0.20.0)
     thread_safe (0.3.6)
     tzinfo (1.2.4)
@@ -52,10 +57,13 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport
+  cassandra-driver
   faraday
   faraday_middleware
+  multi_json
   pry
   rainbow
+  ruby-kafka
   thor
   xa-rules!
   xa-ubl!
