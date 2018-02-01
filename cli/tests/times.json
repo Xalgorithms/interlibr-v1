@@ -1,0 +1,26 @@
+// This test verifies EFFECTIVE matching for rules with jurisdictions
+{
+  "cassandra" : {
+    "effective" : [
+      { "rule_id" : "R0001", "country" : "CA", "region" : "CA-ON",  "timezone" : "America/Toronto", "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T23:59:59", "party" : "customer" }
+    ],
+    "envelopes" : [
+      { "document_id" : "D0001", "party" : "customer", "country" : "CA", "region" : "CA-ON",  "timezone" : "America/Toronto", "issued" : "2018-01-30T23:59:59" },
+      { "document_id" : "D0002", "party" : "customer", "country" : "CA", "region" : "CA-ON",  "timezone" : "America/Toronto", "issued" : "2018-01-31T00:00:00" },
+      { "document_id" : "D0003", "party" : "customer", "country" : "CA", "region" : "CA-ON",  "timezone" : "America/Toronto", "issued" : "2017-01-01T00:00:00" },
+      { "document_id" : "D0004", "party" : "customer", "country" : "CA", "region" : "CA-ON",  "timezone" : "America/Toronto", "issued" : "2019-02-01T00:00:00" },
+      { "document_id" : "D0005", "party" : "customer", "country" : "CA", "region" : "CA-ON",  "timezone" : "America/Toronto", "issued" : "2019-01-31T00:00:00" }
+    ]
+  },
+  "topics" : {
+    "in":  "xadf.compute.documents",
+    "out": "xadf.compute.effective"
+  },
+  "messages" : [
+    { "in" : "D0001", "out" : [] },
+    { "in" : "D0002", "out" : ["D0002:R0001"] },
+    { "in" : "D0003", "out" : [] },
+    { "in" : "D0004", "out" : [] },
+    { "in" : "D0005", "out" : ["D0005:R0001"] }
+  ]
+}
