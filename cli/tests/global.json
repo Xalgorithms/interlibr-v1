@@ -1,0 +1,34 @@
+// This test verifies EFFECTIVE matching for "global" rules (rules without a country or region)
+// The matching SHOULD BE based on the timezone and the party of the effective table
+{
+  "cassandra" : {
+    "effective" : [
+      { "rule_id" : "R0001", "timezone" : "America/Toronto", "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "customer" },
+      { "rule_id" : "R0002", "timezone" : "America/Toronto", "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "supplier" },
+      { "rule_id" : "R0003", "timezone" : "America/Toronto", "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "supplier" },
+      { "rule_id" : "R0004", "timezone" : "America/Halifax", "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "customer" },
+      { "rule_id" : "R0005", "timezone" : "Asia/Yerevan",    "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "customer" },
+      { "rule_id" : "R0006", "timezone" : "Europe/London",   "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "customer" },
+      { "rule_id" : "R0007", "timezone" : "Europe/London",   "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "supplier" },
+      { "rule_id" : "R0008", "timezone" : "Europe/London",   "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "payee" }
+    ],
+    "envelopes" : [
+      { "document_id" : "D0001", "party" : "customer", "country" : "CA", "region" : "CA-ON",  "timezone" : "America/Toronto", "issued" : "2018-02-01T00:00:00" },
+      { "document_id" : "D0002", "party" : "supplier", "country" : "CA", "region" : "CA-ON",  "timezone" : "America/Toronto", "issued" : "2018-02-01T00:00:00" },
+      { "document_id" : "D0003", "party" : "customer", "country" : "AM", "region" : "AM-ER",  "timezone" : "Asia/Yerevan",    "issued" : "2018-02-01T00:00:00" },
+      { "document_id" : "D0004", "party" : "payee",    "country" : "GB", "region" : "GB-LND", "timezone" : "Europe/London",   "issued" : "2018-02-01T00:00:00" },
+      { "document_id" : "D0005", "party" : "tax",      "country" : "GB", "region" : "GB-LND", "timezone" : "Europe/London",   "issued" : "2018-02-01T00:00:00" }
+    ]
+  },
+  "topics" : {
+    "in":  "xadf.compute.documents",
+    "out": "xadf.compute.effective"
+  },
+  "messages" : [
+    { "in" : "D0001", "out" : ["D0001:R0001"] },
+    { "in" : "D0002", "out" : ["D0002:R0002", "D0002:R0003"] },
+    { "in" : "D0003", "out" : ["D0003:R0005"] },
+    { "in" : "D0004", "out" : ["D0004:R0008"] },
+    { "in" : "D0005", "out" : [] }
+  ]
+}
