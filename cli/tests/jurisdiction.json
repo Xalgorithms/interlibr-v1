@@ -1,0 +1,40 @@
+// This test verifies EFFECTIVE matching for rules with jurisdictions
+{
+  "cassandra" : {
+    "effective" : [
+      { "rule_id" : "R0001", "country" : "CA", "region" : "CA-ON",  "timezone" : "America/Toronto", "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "customer" },
+      { "rule_id" : "R0002", "country" : "CA", "region" : "CA-QC",  "timezone" : "America/Toronto", "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "supplier" },
+      { "rule_id" : "R0003", "country" : "CA", "region" : "CA-ON",  "timezone" : "America/Toronto", "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "supplier" },
+      { "rule_id" : "R0004", "country" : "CA", "region" : "CA-NS",  "timezone" : "America/Halifax", "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "customer" },
+      { "rule_id" : "R0005", "country" : "AM", "region" : "AM-ER",  "timezone" : "Asia/Yerevan",    "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "customer" },
+      { "rule_id" : "R0006", "country" : "GB", "region" : "GB-LND", "timezone" : "Europe/London",   "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "payee" },
+      { "rule_id" : "R0007", "country" : "GB", "region" : "GB-LND", "timezone" : "Europe/London",   "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "customer" },
+      { "rule_id" : "R0008", "country" : "GB", "region" : "GB-HAM", "timezone" : "Europe/London",   "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "payee" },
+      { "rule_id" : "R0009", "country" : "AM", "region" : "AM-AR",  "timezone" : "Asia/Yerevan",    "starts" : "2018-01-31T00:00:00", "ends" : "2019-01-31T00:00:00", "party" : "customer" }
+    ],
+    "envelopes" : [
+      { "document_id" : "D0001", "party" : "customer", "country" : "CA", "region" : "CA-ON",  "timezone" : "America/Toronto", "issued" : "2018-02-01T00:00:00" },
+      { "document_id" : "D0002", "party" : "supplier", "country" : "CA", "region" : "CA-ON",  "timezone" : "America/Toronto", "issued" : "2018-02-01T00:00:00" },
+      { "document_id" : "D0003", "party" : "customer", "country" : "AM", "region" : "AM-ER",  "timezone" : "Asia/Yerevan",    "issued" : "2018-02-01T00:00:00" },
+      { "document_id" : "D0004", "party" : "payee",    "country" : "GB", "region" : "GB-LND", "timezone" : "Europe/London",   "issued" : "2018-02-01T00:00:00" },
+      { "document_id" : "D0005", "party" : "tax",      "country" : "GB", "region" : "GB-LND", "timezone" : "Europe/London",   "issued" : "2018-02-01T00:00:00" },
+      { "document_id" : "D0006", "party" : "supplier", "country" : "CA", "region" : "CA-QC",  "timezone" : "America/Toronto", "issued" : "2018-02-01T00:00:00" },
+      { "document_id" : "D0007", "party" : "customer", "country" : "AM", "region" : "AM-AR",  "timezone" : "Asia/Yerevan",    "issued" : "2018-02-01T00:00:00" },
+      { "document_id" : "D0008", "party" : "customer", "country" : "CA", "region" : "CA-NS",  "timezone" : "America/Halifax", "issued" : "2018-02-01T00:00:00" }
+    ]
+  },
+  "topics" : {
+    "in":  "xadf.compute.documents",
+    "out": "xadf.compute.effective"
+  },
+  "messages" : [
+    { "in" : "D0001", "out" : ["D0001:R0001"] },
+    { "in" : "D0002", "out" : ["D0002:R0003"] },
+    { "in" : "D0003", "out" : ["D0003:R0005"] },
+    { "in" : "D0004", "out" : ["D0004:R0006"] },
+    { "in" : "D0005", "out" : [] },
+    { "in" : "D0006", "out" : ["D0006:R0002"] },
+    { "in" : "D0007", "out" : ["D0007:R0009"] },
+    { "in" : "D0008", "out" : ["D0008:R0004"] }
+  ]
+}
