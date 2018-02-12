@@ -1,5 +1,6 @@
 require 'cassandra'
 require 'kafka'
+require 'mongo'
 require 'multi_json'
 require 'thor'
 require 'timeout'
@@ -28,6 +29,15 @@ module Subcommands
       def make_session
         cl = Cassandra.cluster(hosts: ['localhost'], port: 9042)
         cl.connect('xadf')
+      end
+
+      def populate_mongo(o)
+        Support::Display::info('initializing mongo data')
+        o.fetch('documents', []).each do |doc|
+          cl = Mongo::Client.new('mongodb://127.0.0.1:27017/xadf')
+          cl[:documents].delete_many(public_id: doc['public_id'])
+          cl[:documents].insert_one(doc)
+        end
       end
       
       def populate_cassandra(o)
@@ -102,6 +112,7 @@ module Subcommands
       o = MultiJson.decode(IO.read(path))
 
       populate_cassandra(o.fetch('cassandra', {}))
+      populate_mongo(o.fetch('mongo', {}))
       topics = o.fetch('topics', nil)
       if topics
         Support::Display.info('sending messages')
