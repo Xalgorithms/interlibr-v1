@@ -6,7 +6,7 @@ require_relative '../support/display'
 module Subcommands
   class Fabric < Thor
     class_option :schedule_url, default: 'http://localhost:9292', aliases: :s
-    
+
     desc 'submit <path>', 'Submits a document to the Fabric'
     option :raw, type: :boolean, aliases: :r
     def submit(path)

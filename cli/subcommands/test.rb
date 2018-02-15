@@ -33,13 +33,15 @@ module Subcommands
 
       def populate_mongo(o)
         Support::Display::info('initializing mongo data')
-        o.fetch('documents', []).each do |doc|
-          cl = Mongo::Client.new('mongodb://127.0.0.1:27017/xadf')
-          cl[:documents].delete_many(public_id: doc['public_id'])
-          cl[:documents].insert_one(doc)
+        o.keys.each do |collection|
+          o.fetch(collection, []).each do |doc|
+            cl = Mongo::Client.new('mongodb://127.0.0.1:27017/xadf')
+            cl[collection].delete_many(public_id: doc['public_id'])
+            cl[collection].insert_one(doc)
+          end
         end
       end
-      
+
       def populate_cassandra(o)
         Support::Display.info('initializing cassandra data')
         sess = make_session
@@ -61,7 +63,7 @@ module Subcommands
       def connect_kafka
         Kafka.new(seed_brokers: ['localhost:9092'], client_id: 'xa-cli (test)')
       end
-      
+
       def send_single_message(topic, m)
         Support::Display.give("scheduling (topic=#{topic}; m=#{m})")
         kafka = connect_kafka
@@ -91,21 +93,38 @@ module Subcommands
 
         vals
       end
-      
+
       def produce_and_consume(topics, msgs)
         msgs.each do |m|
           send_single_message(topics['in'], m['in'])
           vals = receive_messages(topics['out']).sort
-          expect = m['out'].sort
-          if vals != expect
-            Support::Display.error_strong("expected #{vals} to equal #{expect}")
+
+          if m['expect'] == nil
+            actual = vals
+            expect = m['out'].sort
           else
-            Support::Display.info_strong("matched (#{vals} == #{expect})")
+            ex = m['expect']
+            collection = ex['collection']
+            expect = ex['data']
+            actual = get_entity_by_id(vals.first, collection)
+          end
+
+          if actual != expect
+            Support::Display.error_strong("expected #{actual} to equal #{expect}")
+          else
+            Support::Display.info_strong("matched (#{actual} == #{expect})")
           end
         end
       end
+
+      def get_entity_by_id(id, collection)
+        cl = Mongo::Client.new('mongodb://127.0.0.1:27017/xadf')
+        doc = cl[collection].find( { _id: BSON::ObjectId.from_string(id) } ).first
+        doc.delete "_id"
+        doc
+      end
     end
-    
+
     desc 'compute <path>', 'Runs a test of a compute queue'
     def compute(path)
       Support::Display.info("running compute test (test=#{path})")

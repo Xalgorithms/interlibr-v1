@@ -1,0 +1,56 @@
+// This test verifies proper execution of REVISE
+{
+  "mongo" : {
+    "documents" : [
+      {
+        "_id" : "5a69c9e1bb34c9d8ac2db019",
+        "envelope" : {
+          "x" : { "y" : "5" },
+          "p" : { "q" : "3" }
+        },
+        "items" : {
+          "x" : { "y" : { "z" : "text 1", "w" : "1" } },
+          "p" : { "q" : "text 2" } }
+        }
+    ],
+    "rules" : [
+      {
+        "_id" : "5a7449782b2a4488631b5857",
+        "steps" : [
+          {
+            "name" : "revise",
+            "table" : { "type" : "reference", "section" : "tables", "key" : "items" },
+            "assignments" : [
+              { "column" : "a.b", "type" : "reference", "section" : "_context", "key" : "x.y.z" },
+              { "column" : "b", "type" : "reference", "section" : "_context", "key" : "p.q" },
+              { "column" : "c", "type" : "number", "value" : "2" },
+              { "column" : "d", "type" : "string", "value" : "s" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "topics" : {
+    "in":  "xadf.compute.applicable",
+    "out": "xadf.compute.revision"
+  },
+  "messages" : [
+    {
+      "in" : "5a69c9e1bb34c9d8ac2db019:5a7449782b2a4488631b5857",
+      "out": [],
+      "expect": {
+        "collection": "revision",
+        "data": {
+          "a": {
+            "b": "text 1"
+          },
+          "b": "text 2",
+          "c": 2,
+          "d": "s",
+          "doc_id": "5a69c9e1bb34c9d8ac2db019"
+        }
+      }
+    }
+  ]
+}
