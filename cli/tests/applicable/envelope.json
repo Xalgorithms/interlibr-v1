@@ -1,0 +1,72 @@
+// this test verifies the applicable rules job where envelope values are checked
+{
+  "mongo" : {
+    "documents" : [
+      {
+        "public_id" : "D0001",
+        "envelope"  : {
+          "a" : {
+            "b" : 1,
+            "c" : "bar"
+          }
+        }
+      },
+      {
+        "public_id" : "D0002",
+        "envelope"  : {
+          "a" : {
+            "b" : 2,
+            "c" : "baz"
+          }
+        }
+      },
+      {
+        "public_id" : "D0003",
+        "envelope"  : {
+          "a" : {
+            "b" : 1
+          }
+        }
+      },
+      {
+        "public_id" : "D0004",
+        "envelope"  : {
+        }
+      }
+    ]
+  },
+  "cassandra" : {
+    "when_keys" : [
+      { "section" : "envelope", "key" : "a.b" },
+      { "section" : "envelope", "key" : "a.c" }
+    ],
+    "whens" : [
+      { "rule_id": "R0001", "section" : "envelope", "key" : "a.b", "op" : "eq", "val" : 1 },
+      { "rule_id": "R0002", "section" : "envelope", "key" : "a.b", "op" : "gt", "val" : 1 },
+      { "rule_id": "R0003", "section" : "envelope", "key" : "a.b", "op" : "gte", "val" : 1 },
+      { "rule_id": "R0003", "section" : "envelope", "key" : "a.c", "op" : "eq", "val" : "baz" }
+    ],
+    "envelopes" : [
+      { "document_id" : "D0001", "party" : "supplier" },
+      { "document_id" : "D0002", "party" : "supplier" },
+      { "document_id" : "D0003", "party" : "supplier" },
+      { "document_id" : "D0004", "party" : "supplier" }
+    ]
+  },
+  "topics" : {
+    "in":  "xadf.compute.effective",
+    "out": "xadf.compute.applicable"
+  },
+  "messages" : [
+    { "in" : "D0001:R0001", "out" : ["D0001:R0001"] },
+    { "in" : "D0001:R0002", "out" : [] },
+    { "in" : "D0002:R0001", "out" : [] },
+    { "in" : "D0002:R0002", "out" : ["D0002:R0002"] },
+    { "in" : "D0001:R0003", "out" : [] },
+    { "in" : "D0002:R0003", "out" : ["D0002:R0003"] },
+    { "in" : "D0003:R0003", "out" : [] },
+    { "in" : "D0004:R0001", "out" : [] },
+    { "in" : "D0004:R0002", "out" : [] },
+    { "in" : "D0004:R0003", "out" : [] }
+  ]
+}

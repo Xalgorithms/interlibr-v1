@@ -1,0 +1,46 @@
+// this test verifies the applicable rules job where envelope values are checked
+{
+  "mongo" : {
+    "documents" : [
+      {
+        "public_id" : "D0001",
+        "items"  : [
+          { "a" : 1 },
+          { "a" : 2 },
+          { "a" : 3 }
+        ]
+      },
+      {
+        "public_id" : "D0002",
+        "items"  : [
+          { "a" : 3 },
+          { "a" : 3 },
+          { "a" : 3 }
+        ]
+      }
+    ]
+  },
+  "cassandra" : {
+    "when_keys" : [
+      { "section" : "items", "key" : "a" }
+    ],
+    "whens" : [
+      { "rule_id": "R0001", "section" : "items", "key" : "a", "op" : "eq", "val" : 1 },
+      { "rule_id": "R0002", "section" : "items", "key" : "a", "op" : "gt", "val" : 1 }
+    ],
+    "envelopes" : [
+      { "document_id" : "D0001", "party" : "supplier" },
+      { "document_id" : "D0002", "party" : "supplier" }
+    ]
+  },
+  "topics" : {
+    "in":  "xadf.compute.effective",
+    "out": "xadf.compute.applicable"
+  },
+  "messages" : [
+    { "in" : "D0001:R0001", "out" : ["D0001:R0001"] },
+    { "in" : "D0001:R0002", "out" : ["D0001:R0002"] },
+    { "in" : "D0002:R0001", "out" : [] },
+    { "in" : "D0002:R0002", "out" : ["D0002:R0002"] }
+  ]
+}
