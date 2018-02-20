@@ -119,8 +119,9 @@ module Subcommands
 
       def get_entity_by_id(id, collection)
         cl = Mongo::Client.new('mongodb://127.0.0.1:27017/xadf')
-        doc = cl[collection].find( { _id: BSON::ObjectId.from_string(id) } ).first
+        doc = cl[collection].find( { public_id: id } ).first
         doc.delete "_id"
+        doc.delete "public_id"
         doc
       end
     end
