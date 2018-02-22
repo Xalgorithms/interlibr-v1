@@ -3,7 +3,6 @@
   "mongo" : {
     "documents" : [
       {
-        "_id" : "5a69c9e1bb34c9d8ac2db019",
         "public_id": "5a69c9e1bb34c9d8ac2db019",
         "envelope" : {
           "x" : { "y" : "5" },
@@ -11,12 +10,12 @@
         },
         "items" : {
           "x" : { "y" : { "z" : "text 1", "w" : "1" } },
-          "p" : { "q" : "text 2" } }
+          "p" : { "q" : "text 2" }
         }
+      }
     ],
     "rules" : [
       {
-        "_id" : "5a7449782b2a4488631b5857",
         "public_id": "5a7449782b2a4488631b5857",
         "steps" : [
           {
@@ -27,6 +26,25 @@
               { "column" : "b", "type" : "reference", "section" : "_context", "key" : "p.q" },
               { "column" : "c", "type" : "number", "value" : "2" },
               { "column" : "d", "type" : "string", "value" : "s" }
+            ]
+          }
+        ]
+      },
+      {
+        "public_id": "5a7449782b2a4488631b5866",
+        "steps" : [
+          {
+            "name" : "map",
+            "table" : { "type" : "reference", "section" : "tables", "key" : "items" },
+            "assignments" : [
+              { "column" : "a", "type" : "reference", "section" : "_context", "key" : "x.y.z" }
+            ]
+          },
+          {
+            "name" : "revise",
+            "table" : { "type" : "reference", "section" : "_virtual", "key" : "items" },
+            "assignments" : [
+              { "column" : "b", "type" : "reference", "section" : "_context", "key" : "a" }
             ]
           }
         ]
@@ -50,6 +68,17 @@
           "b": "text 2",
           "c": 2,
           "d": "s",
+          "doc_id": "5a69c9e1bb34c9d8ac2db019"
+        }
+      }
+    },
+    {
+      "in" : "5a69c9e1bb34c9d8ac2db019:5a7449782b2a4488631b5866",
+      "out": [],
+      "expect": {
+        "collection": "revision",
+        "data": {
+          "b": "text 1",
           "doc_id": "5a69c9e1bb34c9d8ac2db019"
         }
       }
