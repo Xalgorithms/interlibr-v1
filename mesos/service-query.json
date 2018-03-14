@@ -1,0 +1,37 @@
+{
+  "id": "service-query",
+  "acceptedResourceRoles": ["slave_public"],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "xalgorithms/xadf-query-service:latest-development"
+    },
+    "portMappings": [
+      { "hostPort": 7000, "containerPort": 7000, "protocol": "tcp" }
+    ]
+  },
+  "networks": [
+    {
+      "mode": "container/bridge"
+    }
+  ],
+  "healthChecks": [
+    {
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "maxConsecutiveFailures": 3,
+      "portIndex": 0,
+      "timeoutSeconds": 20,
+      "delaySeconds": 15,
+      "protocol": "MESOS_HTTP",
+      "path": "/status"
+    }
+  ],
+  "env" : {
+    "RACK_ENV" : "production"
+  },
+  "cmd" : "bundle exec rackup -p 7000",
+  "instances": 1,
+  "cpus": 0.1,
+  "mem": 64
+}

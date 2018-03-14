@@ -1,0 +1,38 @@
+{
+  "id": "service-schedule",
+  "acceptedResourceRoles": ["slave_public"],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "xalgorithms/xadf-schedule-service:latest-development"
+    },
+    "portMappings": [
+      { "hostPort": 6000, "containerPort": 6000, "protocol": "tcp" }
+    ]
+  },
+  "networks": [
+    {
+      "mode": "container/bridge"
+    }
+  ],
+  "healthChecks": [
+    {
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "maxConsecutiveFailures": 3,
+      "portIndex": 0,
+      "timeoutSeconds": 20,
+      "delaySeconds": 15,
+      "protocol": "MESOS_HTTP",
+      "path": "/status"
+    }
+  ],
+  "env" : {
+    "RACK_ENV" : "production",
+    "GOOGLE_TIMEZONE_API_KEY": "AIzaSyD8Vz5BHFVI1Kt-WNA5DE2wTh7JMB7s-w8"
+  },
+  "cmd" : "bundle exec rackup -p 6000",
+  "instances": 1,
+  "cpus": 0.1,
+  "mem": 64
+}

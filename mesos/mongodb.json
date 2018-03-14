@@ -1,0 +1,39 @@
+{
+  "service": {
+    "name": "mongodb"
+  },
+  "mongodb": {
+    "cpus": 0.5,
+    "mem": 1024
+  },
+  "database": {
+    "name": "xadf",
+    "username": "xadf-mongo-admin",
+    "password": "kaiJ0uiFaNgequ9i",
+    "status_ui_auth": false
+  },
+  "storage": {
+    "host_volume": "/tmp",
+    "persistence": {
+      "enable": false,
+      "volume_size": 256
+    },
+    "use_storage_engine": {
+      "enable": false,
+      "storage_engine": "mmapv1"
+    }
+  },
+  "networking": {
+    "port": 27017,
+    "host_mode": false,
+    "external_access": {
+      "enable": false,
+      "external_access_port": 27017
+    },
+    "external_ui_access": {
+      "enable": false,
+      "external_ui_access_port": 28017,
+      "virtual_host": "mongodb.example.org"
+    }
+  }
+}
