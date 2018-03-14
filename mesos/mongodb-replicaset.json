@@ -1,0 +1,21 @@
+{
+  "service": {
+    "name": "mongodb-replicaset"
+  },
+  "mongodb": {
+    "cpus": 0.5,
+    "mem": 2048,
+    "disk": 1000,
+    "count": 1,
+    "replicaSetName": "rs",
+    "port": 27017,
+    "version": "3.4.1",
+    "constraint": "[['hostname', 'UNIQUE']]"
+  },
+  "init": {
+    "cpus": 0.1,
+    "mem": 256,
+    "initiate-delay": 10,
+    "add-delay": 5
+  }
+}
