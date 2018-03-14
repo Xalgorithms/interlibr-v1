@@ -4,7 +4,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "xalgorithms/xadf-schedule-service:test-production"
+      "image": "xalgorithms/xadf-schedule-service:0.0.9-development"
     },
     "portMappings": [
       { "hostPort": 6000, "containerPort": 6000, "protocol": "tcp" }
