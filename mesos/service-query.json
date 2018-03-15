@@ -4,7 +4,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "xalgorithms/xadf-query-service:0.0.2-development"
+      "image": "xalgorithms/xadf-query-service:0.0.3-development"
     },
     "portMappings": [
       { "hostPort": 7000, "containerPort": 7000, "protocol": "tcp" }
