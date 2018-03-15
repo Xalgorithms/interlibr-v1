@@ -28,7 +28,8 @@
     }
   ],
   "env" : {
-    "RACK_ENV" : "production"
+    "RACK_ENV" : "production",
+    "MONGO_URL" : "mongodb://mongodb.marathon.l4lb.thisdcos.directory:27017"
   },
   "cmd" : "bundle exec rackup -p 7000",
   "instances": 1,

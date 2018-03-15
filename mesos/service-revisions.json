@@ -4,7 +4,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "xalgorithms/xadf-revisions-service:0.0.8-development"
+      "image": "xalgorithms/xadf-revisions-service:0.0.9-development"
     },
     "portMappings": [
       { "hostPort": 8000, "containerPort": 8000, "protocol": "tcp" }
@@ -29,7 +29,9 @@
   ],
   "env" : {
     "RACK_ENV" : "production",
-    "GITHUB_SECRET" : "731d2d4919d0da429c0e504a05f9b72276bf2486"
+    "GITHUB_SECRET" : "731d2d4919d0da429c0e504a05f9b72276bf2486",
+    "CASSANDRA_HOSTS" : "node-0-server.cassandra.autoip.dcos.thisdcos.directory, node-1-server.cassandra.autoip.dcos.thisdcos.directory",
+    "MONGO_URL" : "mongodb://mongodb.marathon.l4lb.thisdcos.directory:27017"
   },
   "cmd" : "bundle exec rackup -p 8000",
   "instances": 1,
