@@ -1,29 +1,8 @@
 version: '2'
 
 services:
-  mongo:
-    image: mongo
-    ports:
-      - "27017:27017"
-
-  cassandra:
-    image: cassandra
-    ports:
-      - "9042:9042"
-    volumes:
-      - ./data/cassandra-1:/var/lib/cassandra:rw
-
-  kafka:
-    image: spotify/kafka
-    ports:
-      - "2181:2181"
-      - "9092:9092"
-    environment:
-      ADVERTISED_HOST: localhost
-      ADVERTISED_PORT: 9092
-
   spark-master:
-    image: xalgorithms/spark-dev:2.2.0-0.0.1
+    image: xalgorithms/spark-dev:2.2.0-0.0.2
     command: /apps/spark/bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
     environment:
       MASTER: spark://spark-master:7077
@@ -49,7 +28,7 @@ services:
       - mongo
 
   spark-worker:
-    image: xalgorithms/spark-dev:2.2.0-0.0.1
+    image: xalgorithms/spark-dev:2.2.0-0.0.2
     command: /apps/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     environment:
       SPARK_CONF_DIR: /conf

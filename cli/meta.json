@@ -1,0 +1,30 @@
+{
+  "production" : {
+    "kafka" : {
+      "url" : "broker.kafka.l4lb.thisdcos.directory:9092",
+      "topics" : [
+        "xadf.compute.documents",
+        "xadf.compute.effective",
+        "xadf.compute.applicable",
+        "xadf.compute.revision"
+      ]
+    },
+    "cassandra" : {
+      "url" : "node-0-server.cassandra.autoip.dcos.thisdcos.directory"
+    }
+  },
+  "development" : {
+    "kafka" : {
+      "url" : "localhost:9092",
+      "topics" : [
+        "xadf.compute.documents",
+        "xadf.compute.effective",
+        "xadf.compute.applicable",
+        "xadf.compute.revision"
+      ]
+    },
+    "cassandra" : {
+      "url" : "localhost"
+    }
+  }
+}

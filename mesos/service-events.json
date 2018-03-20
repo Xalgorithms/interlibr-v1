@@ -4,7 +4,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "xalgorithms/xadf-events-service:0.0.2-development"
+      "image": "xalgorithms/xadf-events-service:0.0.3-development"
     },
     "portMappings": [
       { "hostPort": 4200, "containerPort": 4200, "protocol": "tcp" }
@@ -28,6 +28,7 @@
     }
   ],
   "env" : {
+    "ZOOKEEPER_URL" : "mesos-master"
   },
   "cmd" : "npm run start-production",
   "instances": 1,
