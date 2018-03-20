@@ -1,11 +1,11 @@
-require 'cassandra'
-require 'kafka'
 require 'mongo'
 require 'multi_json'
 require 'thor'
 require 'timeout'
 
 require_relative '../support/display'
+require_relative '../support/cassandra'
+require_relative '../support/kafka'
 
 module Subcommands
   class Test < Thor
@@ -16,19 +16,6 @@ module Subcommands
           vs = ks.map { |k| "'#{d[k]}'" }
           "INSERT INTO #{tn} (#{ks.join(',')}) VALUES (#{vs.join(',')})"
         end
-      end
-
-      def truncate_tables(sess, ns)
-        ns.each do |n|
-          Support::Display.warn("clearing data (table=#{n})")
-          stm = sess.prepare("TRUNCATE TABLE #{n}")
-          sess.execute(stm)
-        end
-      end
-
-      def make_session
-        cl = Cassandra.cluster(hosts: ['localhost'], port: 9042)
-        cl.connect('xadf')
       end
 
       def populate_mongo(o)
@@ -44,60 +31,25 @@ module Subcommands
 
       def populate_cassandra(o)
         Support::Display.info('initializing cassandra data')
-        sess = make_session
-        truncate_tables(sess, o.keys)
+        cl = Support::Cassandra.new('localhost')
+        cl.truncate_tables(o.keys.map { |n| "xadf.#{n}" })
         inserts = o.keys.inject([]) do |a, tn|
           a + o.fetch(tn, []).map do |r|
             ks = r.keys
             vs = ks.map { |k| "'#{r[k]}'" }
-            "INSERT INTO #{tn} (#{ks.join(',')}) VALUES (#{vs.join(',')})"
+            "INSERT INTO xadf.#{tn} (#{ks.join(',')}) VALUES (#{vs.join(',')})"
           end
         end
 
         Support::Display.info('inserting test data')
-        q = 'BEGIN BATCH ' + inserts.join(';') + ' APPLY BATCH;'
-        stm = sess.prepare(q)
-        sess.execute(stm)
-      end
-
-      def connect_kafka
-        Kafka.new(seed_brokers: ['localhost:9092'], client_id: 'xa-cli (test)')
-      end
-
-      def send_single_message(topic, m)
-        Support::Display.give("scheduling (topic=#{topic}; m=#{m})")
-        kafka = connect_kafka
-        pr = kafka.producer
-        pr.produce(m, topic: topic)
-        pr.deliver_messages
-      end
-
-      def receive_messages(topic)
-        kafka = connect_kafka
-        con = kafka.consumer(group_id: 'xa-cli-test-consumer')
-        con.subscribe(topic, start_from_beginning: false)
-
-        vals = []
-        begin
-          Support::Display.info("waiting for messages (topic=#{topic})")
-          Timeout::timeout(10) do
-            con.each_message do |m|
-              Support::Display.got_ok("value=#{m.value}")
-              vals = vals + [m.value]
-            end
-          end
-        rescue
-          Support::Display.info('finished waiting')
-          con.stop
-        end
-
-        vals
+        cl.execute_batch(inserts)
       end
 
       def produce_and_consume(topics, msgs)
+        k = Support::Kafka.new('localhost:9092')
         msgs.each do |m|
-          send_single_message(topics['in'], m['in'])
-          vals = receive_messages(topics['out']).sort
+          k.send_single_message(topics['in'], m['in'])
+          vals = k.receive_messages(topics['out']).sort
 
           if m['expect'] == nil
             actual = vals
@@ -126,8 +78,8 @@ module Subcommands
       end
     end
 
-    desc 'compute <path>', 'Runs a test of a compute queue'
-    def compute(path)
+    desc 'compute <path> [kafka_url]', 'Runs a test of a compute queue'
+    def compute(path, kafka_url)
       Support::Display.info("running compute test (test=#{path})")
       o = MultiJson.decode(IO.read(path))
 

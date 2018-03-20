@@ -30,6 +30,10 @@ module Support
       puts Rainbow("< #{m}").green
     end
 
+    def self.got_warn(m)
+      puts Rainbow("< #{m}").yellow
+    end
+    
     def self.got_fail(m)
       puts Rainbow("< #{m}").red
     end
