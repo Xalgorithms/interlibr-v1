@@ -4,7 +4,7 @@ require_relative './display'
 module Support
   class Cassandra
     def initialize(url, keyspace = nil)
-      @cl = ::Cassandra.cluster(hosts: ['localhost'], port: 9042)
+      @cl = ::Cassandra.cluster(hosts: [url], port: 9042)
       @sess = keyspace ? @cl.connect(keyspace) : @cl.connect
     end
 
