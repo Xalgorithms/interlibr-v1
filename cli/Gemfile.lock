@@ -15,6 +15,13 @@ GIT
       activesupport
       nokogiri
 
+GIT
+  remote: https://github.com/karfai/radish.git
+  revision: 93c25a62dc1f8337b3a583dc11c85c158ae8d18b
+  specs:
+    radish (0.1.0)
+      multi_json
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -66,6 +73,7 @@ DEPENDENCIES
   mongo
   multi_json
   pry
+  radish!
   rainbow
   ruby-kafka
   thor

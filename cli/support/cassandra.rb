@@ -16,15 +16,19 @@ module Support
     end
 
     def execute_batch(statements)
-      batch = @sess.batch do |b|
-        statements.each do |stm|
-          Support::Display.info("adding statement: #{stm}")
-          b.add(stm)
+      if statements.any?
+        batch = @sess.batch do |b|
+          statements.each do |stm|
+            Support::Display.info("adding statement: #{stm}")
+            b.add(stm)
+          end
         end
+        
+        Support::Display.give('sending batch')
+        @sess.execute(batch)
+      else
+        Support::Display.warn('given empty statements list')
       end
-
-      Support::Display.give('sending batch')
-      @sess.execute(batch)
     end
 
     def truncate_tables(ns)

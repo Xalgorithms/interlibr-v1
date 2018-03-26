@@ -11,6 +11,9 @@
     },
     "cassandra" : {
       "url" : "node-0-server.cassandra.autoip.dcos.thisdcos.directory"
+    },
+    "mongo" : {
+      "url" : "mongodb://mongodb.marathon.l4lb.thisdcos.directory:27017"
     }
   },
   "development" : {
@@ -25,6 +28,9 @@
     },
     "cassandra" : {
       "url" : "localhost"
+    },
+    "mongo" : {
+      "url" : "mongodb://127.0.0.1:27017/xadf"
     }
   }
 }

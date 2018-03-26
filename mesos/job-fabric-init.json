@@ -6,7 +6,7 @@
     "disk": 0,
     "cmd": "bundle exec ruby xa fabric init production",
     "docker": {
-      "image": "xalgorithms/xadf-cli:0.0.3-production"
+      "image": "xalgorithms/xadf-cli:0.0.4-production"
     }
   },
   "schedules": [],
