@@ -1,4 +1,4 @@
-require 'mongo'
+require 'active_support/core_ext/hash'
 require 'multi_json'
 require 'thor'
 require 'timeout'
@@ -6,6 +6,7 @@ require 'timeout'
 require_relative '../support/display'
 require_relative '../support/cassandra'
 require_relative '../support/kafka'
+require_relative '../support/mongo'
 
 module Subcommands
   class Test < Thor
@@ -20,11 +21,10 @@ module Subcommands
 
       def populate_mongo(o)
         Support::Display::info('initializing mongo data')
+        cl = Support::Mongo.new('mongodb://127.0.0.1:27017/xadf')
         o.keys.each do |collection|
           o.fetch(collection, []).each do |doc|
-            cl = Mongo::Client.new('mongodb://127.0.0.1:27017/xadf')
-            cl[collection].delete_many(public_id: doc['public_id'])
-            cl[collection].insert_one(doc)
+            cl.reset(collection, doc)
           end
         end
       end
@@ -70,11 +70,10 @@ module Subcommands
       end
 
       def get_entity_by_id(id, collection)
-        cl = Mongo::Client.new('mongodb://127.0.0.1:27017/xadf')
-        doc = cl[collection].find( { public_id: id } ).first
-        doc.delete "_id"
-        doc.delete "public_id"
-        doc
+        cl = Support::Mongo.new('mongodb://127.0.0.1:27017/xadf')
+        doc = cl.find_one_by_public_id(collection, id)
+        Support::Display.warn("entity not found (id=#{id}; collection=#{collection})")
+        doc ? doc.except('_id', 'public_id') : nil
       end
     end
 

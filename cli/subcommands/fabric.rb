@@ -13,6 +13,12 @@ module Subcommands
       meta = Init::Meta.load(env)
       meta.init
     end
+
+    desc 'data <env> <what> <action>', 'Clear data from a section of the Fabric'
+    def data(env, what, action)
+      meta = Init::Meta.load(env)
+      meta.invoke(what, action)
+    end
     
     desc 'submit <path>', 'Submits a document to the Fabric'
     option :raw, type: :boolean, aliases: :r
