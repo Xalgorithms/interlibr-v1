@@ -4,7 +4,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "xalgorithms/xadf-schedule-service:0.0.11-development"
+      "image": "xalgorithms/xadf-schedule-service:0.0.12-development"
     },
     "portMappings": [
       { "hostPort": 6000, "containerPort": 6000, "protocol": "tcp" }
@@ -29,7 +29,7 @@
   ],
   "env" : {
     "RACK_ENV" : "production",
-    "GOOGLE_TIMEZONE_API_KEY": "AIzaSyD8Vz5BHFVI1Kt-WNA5DE2wTh7JMB7s-w8",
+    "GOOGLE_TIMEZONE_API_KEY": "AIzaSyDaRVkHq0rAw0Q_2c4F7PZGmodCw_8hh1g",
     "CASSANDRA_HOSTS" : "node-0-server.cassandra.autoip.dcos.thisdcos.directory, node-1-server.cassandra.autoip.dcos.thisdcos.directory",
     "MONGO_URL" : "mongodb://mongodb.marathon.l4lb.thisdcos.directory:27017",
     "KAFKA_BROKERS" : "broker.kafka.l4lb.thisdcos.directory:9092"
