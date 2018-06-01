@@ -1,0 +1,28 @@
+[submodule "libs/rules-interpreter"]
+	path = libs/rules-interpreter
+	url = git@github.com:Xalgorithms/lib-rules-int-scala.git
+	branch = master
+[submodule "libs/rules-parser"]
+	path = libs/rules-parser
+	url = git@github.com:Xalgorithms/lib-rules-parse-ruby.git
+	branch = master
+[submodule "services/jobs"]
+	path = services/jobs
+	url = git@github.com:Xalgorithms/services-il-jobs.git
+	branch = master
+[submodule "services/revisions-github"]
+	path = services/revisions-github
+	url = git@github.com:Xalgorithms/service-il-revisions-github.git
+	branch = master
+[submodule "services/schedule"]
+	path = services/schedule
+	url = git@github.com:Xalgorithms/service-il-schedule.git
+	branch = master
+[submodule "services/query"]
+	path = services/query
+	url = git@github.com:Xalgorithms/service-il-query.git
+	branch = master
+[submodule "services/events"]
+	path = services/events
+	url = git@github.com:Xalgorithms/service-il-events.git
+	branch = master
