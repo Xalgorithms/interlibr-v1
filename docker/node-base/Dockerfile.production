@@ -1,0 +1,13 @@
+FROM mhart/alpine-node:8.8.1
+
+RUN mkdir -p /app/src
+WORKDIR /app
+
+RUN addgroup -S node && adduser -S -G node node
+
+ONBUILD COPY package.json .
+ONBUILD RUN npm install --no-package-lock
+ONBUILD COPY ./src /app/src
+
+ONBUILD RUN chown -R node:node /app
+ONBUILD USER node

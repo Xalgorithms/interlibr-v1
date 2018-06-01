@@ -1,0 +1,16 @@
+FROM xalgorithms/jupyterhub:0.0.1
+
+RUN apt-get update && apt-get -y install python3-pip
+
+RUN pip install \
+  jupyter \
+  git+https://github.com/jupyterhub/oauthenticator.git \
+  git+https://github.com/jupyterhub/dockerspawner.git \
+  git+https://github.com/jupyter/jupyter_client.git
+  
+RUN apt-get -y --purge remove python3-pip && apt-get -y --purge autoremove
+
+RUN mkdir /notebooks
+COPY jupyterhub_config.py /srv/jupyterhub
+
+
