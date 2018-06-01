@@ -1,0 +1,78 @@
+# lichen context expectations
+EXPECTS invoices[buyer_location, seller_location, unspsc, price]
+
+# registries
+ATTACH http://... AS xalgo
+ATTACH http://... AS eu_taxation
+ATTACH http://... AS waemu_taxation
+ATTACH http://... AS mali_taxation
+
+## external - tables
+
+# tables provided by base XA system for membership in international orgs
+PULL xalgo:waemu_members:1 AS waemu_members
+PULL xalgo:eu_members:1 AS eu_members
+
+# mapping tables provided by XA system
+PULL xalgo:unspsc_to_hs:1 AS unspsc_to_hs
+
+# EU taxation tables
+PULL eu_taxation:eu_vat_internal:1 AS eu_vat_internal
+PULL eu_taxation:eu_vat_external:1 AS eu_vat_external
+PULL eu_taxation:eu_escalation:1 AS eu_escalation
+
+# WAEMU taxation tables
+PULL waemu_taxation:waemu_cet:1 AS waemu_cet
+
+# MALI taxation tables
+PULL mali_taxation:mali_st:1 AS mali_st
+PULL mali_taxation:mali_csl:1 AS mali_csl
+
+## imports finished - computation follows
+
+# everything starts with the Lichen provided invoice data
+PUSH invoices
+
+# add hs_codes based on unspsc
+PUSH unspsc_to_hs
+JOIN USING [[unspsc], [unspsc_code]] INCLUDE [hs_code]
+
+# determine waemu inclusion / exclusion
+PUSH waemu_members
+INCLUSION USING [[buyer_location], [code]] INCLUDE [is_member AS buyer_in_waemu]
+
+PUSH waemu_members
+INCLUSION USING [[seller_location], [code]] INCLUDE [is_member AS seller_in_waemu]
+
+# determine EU inclusion
+PUSH eu_members
+INCLUSION USING [[buyer_location], [code]] INCLUDE [is_member AS buyer_in_eu]
+
+# apply WAEMU CET taxation
+PUSH waemu_cet
+JOIN USING [[buyer_in_waemu, seller_in_waemu, hs_code], [buyer_member, seller_member, hs_code]] INCLUDE [multiplier AS waemu_multiplier]
+
+# apply EU taxation
+PUSH eu_vat_internal
+JOIN USING [[buyer_in_eu, hs_code], [buyer_member, hs_code]] INCLUDE [multiplier AS eu_member_vat_multiplier]
+
+PUSH eu_vat_external
+JOIN USING [[buyer_location, hs_code], [buyer_country, hs_code]] INCLUDE [multiplier AS eu_nonmember_vat_multiplier]
+
+PUSH eu_escalation
+JOIN USING [[buyer_in_eu, hs_code], [buyer_member, hs_code]] INCLUDE [multiplier AS eu_member_esc_multiplier]
+
+# MALI taxation
+PUSH mali_csl
+JOIN USING [[buyer_location, hs_code], [buyer_country, hs_code]] INCLUDE [multiplier AS mali_csl_multiplier]
+
+PUSH mali_st
+JOIN USING [[buyer_location, hs_code], [buyer_country, hs_code]] INCLUDE [multiplier AS mali_st_multiplier]
+
+## all taxation multipliers are in the ToS, reduce
+
+# for each row multiply using the specified columns; missing columns == multiply by identity (*1)
+ACCUMULATE price USING mult(waemu_multiplier, eu_member_vat_multiplier, eu_nonmember_vat_multiplier, eu_member_esc_multiplier, mali_csl_multiplier, mali_st_multiplier) AS taxed_price
+
+# export our results
+COMMIT taxed_invoices[unspsc, hs_code, price, taxed_price]

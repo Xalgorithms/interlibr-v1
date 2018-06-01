@@ -1,0 +1,6 @@
+[
+    { "buyer_location": "MLI", "seller_location": "FRA", "unspsc": "60131303", "price": "839.99" },
+    { "buyer_location": "MLI", "seller_location": "SEN", "unspsc": "49121508", "price": "5.99" },
+    { "buyer_location": "MLI", "seller_location": "CHN", "unspsc": "46161604", "price": "35.85" },
+    { "buyer_location": "NLD", "seller_location": "COL", "unspsc": "10152054", "price": "1.05" }
+]

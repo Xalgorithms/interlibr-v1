@@ -1,0 +1,198 @@
+# START
+[
+    { buyer_location: "MLI", seller_location: "FRA", unspsc: "60131303", price: "839.99" },
+    { buyer_location: "MLI", seller_location: "SEN", unspsc: "49121508", price: "5.99" },
+    { buyer_location: "MLI", seller_location: "CHN", unspsc: "46161604", price: "35.85" },
+    { buyer_location: "NLD", seller_location: "COL", unspsc: "10152054", price: "1.05" }
+]
+
+# @38
+[
+    { buyer_location: "MLI", seller_location: "FRA", unspsc: "60131303", price: "839.99", hs_code: "9202.*.*.*" },
+    { buyer_location: "MLI", seller_location: "SEN", unspsc: "49121508", price: "5.99", hs_code: "6304.91.00.10" },
+    { buyer_location: "MLI", seller_location: "CHN", unspsc: "46161604", price: "35.85", hs_code: "6307.20.00.00" },
+    { buyer_location: "NLD", seller_location: "COL", unspsc: "10152054", price: "1.05", hs_code: "1801.00.00" }
+]
+
+# @42
+[
+    { buyer_location: "MLI", seller_location: "FRA", unspsc: "60131303", price: "839.99", hs_code: "9202.*.*.*", buyer_in_waemu: "true" },
+    { buyer_location: "MLI", seller_location: "SEN", unspsc: "49121508", price: "5.99", hs_code: "6304.91.00.10", buyer_in_waemu: "true" },
+    { buyer_location: "MLI", seller_location: "CHN", unspsc: "46161604", price: "35.85", hs_code: "6307.20.00.00", buyer_in_waemu: "true" },
+    { buyer_location: "NLD", seller_location: "COL", unspsc: "10152054", price: "1.05", hs_code: "1801.00.00", buyer_in_waemu: "false" }
+]
+
+# @45
+[
+    { buyer_location: "MLI", seller_location: "FRA", unspsc: "60131303", price: "839.99", hs_code: "9202.*.*.*", buyer_in_waemu: "true", seller_in_waemu: "false" },
+    { buyer_location: "MLI", seller_location: "SEN", unspsc: "49121508", price: "5.99", hs_code: "6304.91.00.10", buyer_in_waemu: "true", seller_in_waemu: "true" },
+    { buyer_location: "MLI", seller_location: "CHN", unspsc: "46161604", price: "35.85", hs_code: "6307.20.00.00", buyer_in_waemu: "true", seller_in_waemu: "false" },
+    { buyer_location: "NLD", seller_location: "COL", unspsc: "10152054", price: "1.05", hs_code: "1801.00.00", buyer_in_waemu: "false", seller_in_waemu: "false" }
+]
+
+# @49
+[
+    { buyer_location: "MLI", seller_location: "FRA", unspsc: "60131303", price: "839.99", hs_code: "9202.*.*.*", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false" },
+    { buyer_location: "MLI", seller_location: "SEN", unspsc: "49121508", price: "5.99", hs_code: "6304.91.00.10", buyer_in_waemu: "true", seller_in_waemu: "true", buyer_in_eu: "false" },
+    { buyer_location: "MLI", seller_location: "CHN", unspsc: "46161604", price: "35.85", hs_code: "6307.20.00.00", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false" },
+    { buyer_location: "NLD", seller_location: "COL", unspsc: "10152054", price: "1.05", hs_code: "1801.00.00", buyer_in_waemu: "false", seller_in_waemu: "false", buyer_in_eu: "true" }
+]
+
+# @53
+[
+    {
+	buyer_location: "MLI", seller_location: "FRA", unspsc: "60131303", price: "839.99", hs_code: "9202.*.*.*", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000"
+    },
+    {
+	buyer_location: "MLI", seller_location: "SEN", unspsc: "49121508", price: "5.99", hs_code: "6304.91.00.10", buyer_in_waemu: "true", seller_in_waemu: "true", buyer_in_eu: "false",
+	waemu_multipler: "0.0000"
+    },
+    {
+	buyer_location: "MLI", seller_location: "CHN", unspsc: "46161604", price: "35.85", hs_code: "6307.20.00.00", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000"
+    },
+    {
+	buyer_location: "NLD", seller_location: "COL", unspsc: "10152054", price: "1.05", hs_code: "1801.00.00", buyer_in_waemu: "false", seller_in_waemu: "false", buyer_in_eu: "true"
+    }
+]
+
+# @57
+[
+    {
+	buyer_location: "MLI", seller_location: "FRA", unspsc: "60131303", price: "839.99", hs_code: "9202.*.*.*", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000"
+    },
+    {
+	buyer_location: "MLI", seller_location: "SEN", unspsc: "49121508", price: "5.99", hs_code: "6304.91.00.10", buyer_in_waemu: "true", seller_in_waemu: "true", buyer_in_eu: "false",
+	waemu_multipler: "0.0000"
+    },
+    {
+	buyer_location: "MLI", seller_location: "CHN", unspsc: "46161604", price: "35.85", hs_code: "6307.20.00.00", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000"
+    },
+    {
+	buyer_location: "NLD", seller_location: "COL", unspsc: "10152054", price: "1.05", hs_code: "1801.00.00", buyer_in_waemu: "false", seller_in_waemu: "false", buyer_in_eu: "true",
+	eu_member_vat_multiplier: "0.2000"
+    }
+]
+
+# @60
+[
+    {
+	buyer_location: "MLI", seller_location: "FRA", unspsc: "60131303", price: "839.99", hs_code: "9202.*.*.*", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000", eu_nonmember_vat_multiplier: "0.2000"
+    },
+    {
+	buyer_location: "MLI", seller_location: "SEN", unspsc: "49121508", price: "5.99", hs_code: "6304.91.00.10", buyer_in_waemu: "true", seller_in_waemu: "true", buyer_in_eu: "false",
+	waemu_multipler: "0.0000", eu_nonmember_vat_multiplier: "0.2000"
+    },
+    {
+	buyer_location: "MLI", seller_location: "CHN", unspsc: "46161604", price: "35.85", hs_code: "6307.20.00.00", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000", eu_nonmember_vat_multiplier: "0.2000"
+    },
+    {
+	buyer_location: "NLD", seller_location: "COL", unspsc: "10152054", price: "1.05", hs_code: "1801.00.00", buyer_in_waemu: "false", seller_in_waemu: "false", buyer_in_eu: "true",
+	eu_member_vat_multiplier: "0.2000"
+    }
+]
+
+# @63
+[
+    {
+	buyer_location: "MLI", seller_location: "FRA", unspsc: "60131303", price: "839.99", hs_code: "9202.*.*.*", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000", eu_nonmember_vat_multiplier: "0.2000"
+    },
+    {
+	buyer_location: "MLI", seller_location: "SEN", unspsc: "49121508", price: "5.99", hs_code: "6304.91.00.10", buyer_in_waemu: "true", seller_in_waemu: "true", buyer_in_eu: "false",
+	waemu_multipler: "0.0000", eu_nonmember_vat_multiplier: "0.2000"
+    },
+    {
+	buyer_location: "MLI", seller_location: "CHN", unspsc: "46161604", price: "35.85", hs_code: "6307.20.00.00", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000", eu_nonmember_vat_multiplier: "0.2000"
+    },
+    {
+	buyer_location: "NLD", seller_location: "COL", unspsc: "10152054", price: "1.05", hs_code: "1801.00.00", buyer_in_waemu: "false", seller_in_waemu: "false", buyer_in_eu: "true",
+	eu_member_vat_multiplier: "0.2000", eu_member_esc_multiplier: "0.0000"
+    }
+]
+
+# @67
+[
+    {
+	buyer_location: "MLI", seller_location: "FRA", unspsc: "60131303", price: "839.99", hs_code: "9202.*.*.*", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000", eu_nonmember_vat_multiplier: "0.2000", mali_csl_multiplier: "0.0050"
+    },
+    {
+	buyer_location: "MLI", seller_location: "SEN", unspsc: "49121508", price: "5.99", hs_code: "6304.91.00.10", buyer_in_waemu: "true", seller_in_waemu: "true", buyer_in_eu: "false",
+	waemu_multipler: "0.0000", eu_nonmember_vat_multiplier: "0.2000", mali_csl_multiplier: "0.0050"
+    },
+    {
+	buyer_location: "MLI", seller_location: "CHN", unspsc: "46161604", price: "35.85", hs_code: "6307.20.00.00", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000", eu_nonmember_vat_multiplier: "0.2000", mali_csl_multiplier: "0.0050"
+    },
+    {
+	buyer_location: "NLD", seller_location: "COL", unspsc: "10152054", price: "1.05", hs_code: "1801.00.00", buyer_in_waemu: "false", seller_in_waemu: "false", buyer_in_eu: "true",
+	eu_member_vat_multiplier: "0.2000", eu_member_esc_multiplier: "0.0000"
+    }
+]
+
+# @70
+[
+    {
+	buyer_location: "MLI", seller_location: "FRA", unspsc: "60131303", price: "839.99", hs_code: "9202.*.*.*", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000", eu_nonmember_vat_multiplier: "0.2000", mali_csl_multiplier: "0.0050", mali_st_multiplier: "0.0100"
+    },
+    {
+	buyer_location: "MLI", seller_location: "SEN", unspsc: "49121508", price: "5.99", hs_code: "6304.91.00.10", buyer_in_waemu: "true", seller_in_waemu: "true", buyer_in_eu: "false",
+	waemu_multipler: "0.0000", eu_nonmember_vat_multiplier: "0.2000", mali_csl_multiplier: "0.0050", mali_st_multiplier: "0.0100"
+    },
+    {
+	buyer_location: "MLI", seller_location: "CHN", unspsc: "46161604", price: "35.85", hs_code: "6307.20.00.00", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000", eu_nonmember_vat_multiplier: "0.2000", mali_csl_multiplier: "0.0050", mali_st_multiplier: "0.0100"
+    },
+    {
+	buyer_location: "NLD", seller_location: "COL", unspsc: "10152054", price: "1.05", hs_code: "1801.00.00", buyer_in_waemu: "false", seller_in_waemu: "false", buyer_in_eu: "true",
+	eu_member_vat_multiplier: "0.2000", eu_member_esc_multiplier: "0.0000"
+    }
+]
+
+# @75
+[
+    {
+	buyer_location: "MLI", seller_location: "FRA", unspsc: "60131303", price: "839.99", hs_code: "9202.*.*.*", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000", eu_nonmember_vat_multiplier: "0.2000", mali_csl_multiplier: "0.0050", mali_st_multiplier: "0.0100",
+	taxed_price: "1227.79"
+    },
+    {
+	buyer_location: "MLI", seller_location: "SEN", unspsc: "49121508", price: "5.99", hs_code: "6304.91.00.10", buyer_in_waemu: "true", seller_in_waemu: "true", buyer_in_eu: "false",
+	waemu_multipler: "0.0000", eu_nonmember_vat_multiplier: "0.2000", mali_csl_multiplier: "0.0050", mali_st_multiplier: "0.0100",
+	taxed_price: "0.0000"
+    },
+    {
+	buyer_location: "MLI", seller_location: "CHN", unspsc: "46161604", price: "35.85", hs_code: "6307.20.00.00", buyer_in_waemu: "true", seller_in_waemu: "false", buyer_in_eu: "false",
+	waemu_multipler: "0.2000", eu_nonmember_vat_multiplier: "0.2000", mali_csl_multiplier: "0.0050", mali_st_multiplier: "0.0100",
+	taxed_price: "52.40"
+    },
+    {
+	buyer_location: "NLD", seller_location: "COL", unspsc: "10152054", price: "1.05", hs_code: "1801.00.00", buyer_in_waemu: "false", seller_in_waemu: "false", buyer_in_eu: "true",
+	eu_member_vat_multiplier: "0.2000", eu_member_esc_multiplier: "0.0000",
+	taxed_price: "0.0000"
+    }
+]
+
+# final table accessible to Lichen
+[
+    {
+	unspsc: "60131303", price: "839.99", hs_code: "9202.*.*.*", taxed_price: "1227.79"
+    },
+    {
+	unspsc: "49121508", price: "5.99", hs_code: "6304.91.00.10", taxed_price: "0.0000"
+    },
+    {
+	unspsc: "46161604", price: "35.85", hs_code: "6307.20.00.00", taxed_price: "52.40"
+    },
+    {
+	unspsc: "10152054", price: "1.05", hs_code: "1801.00.00", taxed_price: "0.0000"
+    }
+]

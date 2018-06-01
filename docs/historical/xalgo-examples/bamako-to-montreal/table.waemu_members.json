@@ -1,0 +1,10 @@
+[
+    { "code": "BEN", "name": "Benin" },
+    { "code": "BFA", "name": "Burkina Faso" },
+    { "code": "CIV", "name": "Cote d'Ivoire" },
+    { "code": "GNB", "name": "Guinea Bissau" },
+    { "code": "MLI", "name": "Mali" },
+    { "code": "NER", "name": "Nigeria" },
+    { "code": "SEN", "name": "Senegal" },
+    { "code": "TGO", "name": "Togo" }
+]    

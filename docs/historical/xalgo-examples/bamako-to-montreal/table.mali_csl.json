@@ -1,0 +1,5 @@
+[
+    { "buyer_country": "MLI", "seller_country": "*", "hs_code": "9202.*.*.* ", "multiplier": "1.0050" },
+    { "buyer_country": "MLI", "seller_country": "*", "hs_code": "6304.91.00.10", "multiplier": "1.0050" },
+    { "buyer_country": "MLI", "seller_country": "*", "hs_code": "6307.20.00.00", "multiplier": "1.0050" }
+]
