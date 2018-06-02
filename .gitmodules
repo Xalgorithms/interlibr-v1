@@ -26,3 +26,7 @@
 	path = services/events
 	url = git@github.com:Xalgorithms/service-il-events.git
 	branch = master
+[submodule "services/execute"]
+	path = services/execute
+	url = git@github.com:Xalgorithms/service-il-execute.git
+	branch = master
