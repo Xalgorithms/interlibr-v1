@@ -1,8 +1,10 @@
 require 'active_support/core_ext/hash'
+require 'faker'
 require 'multi_json'
 require 'thor'
 require 'timeout'
 
+require_relative '../clients/revisions'
 require_relative '../support/display'
 require_relative '../support/cassandra'
 require_relative '../support/kafka'
@@ -90,6 +92,43 @@ module Subcommands
         produce_and_consume(topics, o.fetch('messages', []))
       else
         Support::Display.error('no topics were defined')
+      end
+    end
+
+    desc 'exec <path> [schedule_url] [revisions_url]', 'Runs a simple execute loop, uploading unpackaged rules and tables to revisions directly'
+    def exec(path, schedule_url=nil, revisions_url=nil)
+      cl = Clients::Revisions.new(revisions_url || 'http://localhost:9292')
+      package_name = Faker::Dune.planet.downcase.gsub(' ', '_')
+      
+      rules = Dir.glob(File.join(path, '*.rule')).inject({}) do |o, fn|
+        puts "> sending rule (#{fn})"
+        name = File.basename(fn, '.rule')
+        payload = {
+          meta: { version: "99.99.99", package: package_name, name: name }, 
+          content: IO.read(fn),
+        }
+        id = cl.send_rule(payload)
+        puts "< #{id}"
+        id ? o.merge(name => id) : o
+      end
+      
+      Dir.glob(File.join(path, 'tables/**/*.json')).each do |fn|
+        puts "> sending table (#{fn})"
+        m = fn.match(/.*\/tables\/(\w+)\/([0-9]+\.[0-9]+\.[0-9]+)\/(\w+)\.json/)
+        (pkg, ver, n) = m[1..3]
+        payload = {
+          meta: { version: ver, package: pkg, name: n },
+          content: IO.read(fn),
+        }
+        id = cl.send_table(payload)
+        puts "< #{id}"
+      end
+
+      rules.each do |name, id|
+        puts "> scheduling rule test (name=#{name}; id=#{id})"
+        scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
+        req_id = scl.test_run(id, {})
+        puts "> scheduled rule test (name=#{name}; id=#{id}; req_id=#{req_id})"
       end
     end
   end
