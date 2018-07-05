@@ -14,5 +14,16 @@ module Clients
     def schedule(doc)
       @conn.post('/actions', { name: 'document-add', payload: doc })
     end
+
+    def execute_adhoc(rule_id, ctx)
+      payload = {
+        name: 'execute_rule_adhoc',
+        args: { rule_id: rule_id },
+        payload: ctx,
+      }
+
+      resp = @conn.post('/actions', payload)
+      resp.status == 200 ? resp.body['request_id'] : nil
+    end
   end  
 end

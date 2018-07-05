@@ -127,7 +127,9 @@ module Subcommands
       rules.each do |name, id|
         puts "> scheduling rule test (name=#{name}; id=#{id})"
         scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
-        req_id = scl.test_run(id, {})
+        ctx_fn = File.join(path, "#{name}.context.json")
+        ctx = File.exist?(ctx_fn) ? JSON.parse(IO.read(ctx_fn)) : {}
+        req_id = scl.execute_adhoc(id, ctx)
         puts "> scheduled rule test (name=#{name}; id=#{id}; req_id=#{req_id})"
       end
     end
