@@ -25,5 +25,16 @@ module Clients
       resp = @conn.post('/actions', payload)
       resp.status == 200 ? resp.body['request_id'] : nil
     end
+
+    def execute(rule_ref, ctx)
+      payload = {
+        name: 'execute_rule_by_ref',
+        args: { rule_reference: rule_ref },
+        payload: ctx,
+      }
+
+      resp = @conn.post('/actions', payload)
+      resp.status == 200 ? resp.body['request_id'] : nil
+    end
   end  
 end
