@@ -127,9 +127,20 @@ module Subcommands
       rules.each do |name, id|
         puts "> scheduling rule test (name=#{name}; id=#{id})"
         scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
-        req_id = scl.test_run(id, {})
+        ctx_fn = File.join(path, "#{name}.context.json")
+        ctx = File.exist?(ctx_fn) ? JSON.parse(IO.read(ctx_fn)) : {}
+        req_id = scl.execute_adhoc(id, ctx)
         puts "> scheduled rule test (name=#{name}; id=#{id}; req_id=#{req_id})"
       end
+    end
+
+    desc 'exec_ref <rule_ref> <ctx_path> [schedule_url]', 'schedules a rule execution by reference'
+    def exec_ref(rule_ref, ctx_path, schedule_url=nil, revisions_url=nil)
+      puts "> scheduling rule execution (ref=#{rule_ref}; ctx=#{ctx_path})"
+      scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
+      ctx = File.exist?(ctx_path) ? JSON.parse(IO.read(ctx_path)) : {}
+      req_id = scl.execute(rule_ref, ctx)
+      puts "> scheduled execution (req_id=#{req_id})"      
     end
   end
 end
