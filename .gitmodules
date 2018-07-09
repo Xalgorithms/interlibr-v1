@@ -34,3 +34,7 @@
 	path = docs/general
 	url = git@github.com:Xalgorithms/general-documentation.git
 	branch = master
+[submodule "libs/storage"]
+	path = libs/storage
+	url = git@github.com:Xalgorithms/lib-storage.git
+	branch = master
