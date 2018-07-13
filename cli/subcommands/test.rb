@@ -151,12 +151,13 @@ module Subcommands
       ecl = Clients::Events.new(events_url || 'http://localhost:4200')
 
       ready = Barrier.new
-      finished = Barrier.new
+      reqs_q = Queue.new
 
       reqs = {}
       puts "# starting events listener"
-      Thread.new do
+      thr = Thread.new do
         req_ids = Set.new
+        q_req_ids = Set.new
         ecl.subscribe(['audit'], {
                         service: {
                           registered: lambda do |o|
@@ -170,10 +171,12 @@ module Subcommands
                             if ('execution' == o['context']['task'] && 'end' == o['context']['action'])
                               req_ids << o['args']['request_id']
                             end
-                            
-                            have_all = reqs.any? && Set.new(reqs.keys).subset?(req_ids)
-                            finished.signal if have_all
-                            have_all
+
+                            while !reqs_q.empty?
+                              q_req_ids << reqs_q.pop
+                            end
+
+                            q_req_ids.any? && q_req_ids.subset?(req_ids)
                           end
                         }
                       })
@@ -196,11 +199,10 @@ module Subcommands
         o.merge(req_id => { name: name, expected: expected })
       end
 
-      # TODO: we might not need to wait
-      # TODO: sync reqs
+      reqs.keys.each { |id| reqs_q << id }
       
       puts "# waiting for events"
-      finished.wait
+      thr.join
 
       puts "# sleeping to wait for data to settle"
       sleep(5)
