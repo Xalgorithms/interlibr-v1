@@ -152,6 +152,7 @@ module Subcommands
 
       ready = Barrier.new
       reqs_q = Queue.new
+      req_ids_q = Queue.new
 
       reqs = {}
       Support::Display.info_strong("starting events listener")
@@ -169,7 +170,9 @@ module Subcommands
                         audit: {
                           notified: lambda do |o|
                             if ('execution' == o['context']['task'] && 'end' == o['context']['action'])
-                              req_ids << o['args']['request_id']
+                              req_id = o['args']['request_id']
+                              req_ids << req_id
+                              req_ids_q << req_id
                             end
 
                             while !reqs_q.empty?
@@ -202,11 +205,18 @@ module Subcommands
       reqs.keys.each { |id| reqs_q << id }
       
       Support::Display.info_strong("waiting for events")
-      thr.join
+      if !thr.join(10)
+        Support::Display.warn("all events probably arrived early, synchronizing with events thread")
+        req_ids = Set.new
+        while !req_ids_q.empty?
+          req_ids << req_ids_q.pop
+        end
+        Support::Display.warn("mismatched request sizes (reqs=#{reqs.keys.size}; req_ids=#{req_ids.size})") if reqs.keys.size != req_ids.size
+      else
+        Support::Display.warn("sleeping to wait for data to settle")
+        sleep(5)
+      end
 
-      Support::Display.warn("sleeping to wait for data to settle")
-      sleep(5)
-      
       qcl = Clients::Query.new('http://localhost:8000')
       Support::Display.info("checking expectations")
       reqs.each do |req_id, vals|
