@@ -2,9 +2,13 @@ require 'active_support/core_ext/hash'
 require 'faker'
 require 'multi_json'
 require 'thor'
+require 'thread'
 require 'timeout'
 
+require_relative '../clients/events'
+require_relative '../clients/query'
 require_relative '../clients/revisions'
+require_relative '../clients/schedule'
 require_relative '../support/display'
 require_relative '../support/cassandra'
 require_relative '../support/kafka'
@@ -95,8 +99,27 @@ module Subcommands
       end
     end
 
-    desc 'exec <path> [schedule_url] [revisions_url]', 'Runs a simple execute loop, uploading unpackaged rules and tables to revisions directly'
-    def exec(path, schedule_url=nil, revisions_url=nil)
+    class Barrier
+      def initialize
+        @mutex = Mutex.new
+        @cond = ConditionVariable.new
+      end
+
+      def signal
+        @mutex.synchronize {
+          @cond.signal
+        }
+      end
+
+      def wait
+        @mutex.synchronize {
+          @cond.wait(@mutex)
+        }
+      end
+    end
+    
+    desc 'exec <path> [schedule_url] [revisions_url] [events_url]', 'Runs a simple execute loop, uploading unpackaged rules and tables to revisions directly'
+    def exec(path, schedule_url=nil, revisions_url=nil, events_url)
       cl = Clients::Revisions.new(revisions_url || 'http://localhost:9292')
       package_name = Faker::Dune.planet.downcase.gsub(' ', '_')
       
@@ -123,24 +146,94 @@ module Subcommands
         id = cl.send_table(payload)
         puts "< #{id}"
       end
+      
+      scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
+      ecl = Clients::Events.new(events_url || 'http://localhost:4200')
 
-      rules.each do |name, id|
+      ready = Barrier.new
+      finished = Barrier.new
+
+      reqs = {}
+      puts "# starting events listener"
+      Thread.new do
+        req_ids = Set.new
+        ecl.subscribe(['audit'], {
+                        service: {
+                          registered: lambda do |o|
+                            puts "# event listener is ready"
+                            ready.signal
+                            false
+                          end
+                        },
+                        audit: {
+                          notified: lambda do |o|
+                            if ('execution' == o['context']['task'] && 'end' == o['context']['action'])
+                              req_ids << o['args']['request_id']
+                            end
+                            
+                            have_all = reqs.any? && Set.new(reqs.keys).subset?(req_ids)
+                            finished.signal if have_all
+                            have_all
+                          end
+                        }
+                      })
+      end
+      
+      puts "# waiting for listener to be ready"
+      ready.wait
+
+      puts "# sending requests"
+      reqs = rules.inject({}) do |o, (name, id)|
+        puts "# loading expectations (name=#{name})"
+        expected = MultiJson.decode(IO.read(File.join(path, "#{name}.expected.json")))
+        
         puts "> scheduling rule test (name=#{name}; id=#{id})"
-        scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
         ctx_fn = File.join(path, "#{name}.context.json")
         ctx = File.exist?(ctx_fn) ? JSON.parse(IO.read(ctx_fn)) : {}
         req_id = scl.execute_adhoc(id, ctx)
-        puts "> scheduled rule test (name=#{name}; id=#{id}; req_id=#{req_id})"
+        puts "< scheduled rule test (name=#{name}; id=#{id}; req_id=#{req_id})"
+        
+        o.merge(req_id => { name: name, expected: expected })
+      end
+
+      # TODO: we might not need to wait
+      # TODO: sync reqs
+      
+      puts "# waiting for events"
+      finished.wait
+
+      puts "# sleeping to wait for data to settle"
+      sleep(5)
+      
+      qcl = Clients::Query.new('http://localhost:8000')
+      puts "> checking expectations"
+      reqs.each do |req_id, vals|
+        step = qcl.last_step_by_request(req_id)
+        ac_tables = step.fetch('context', {}).fetch('tables', {})
+        ex_tables = vals[:expected].fetch('tables', [])
+        ex_tables.each do |section, ex_section_tables|
+          ac_section_tables = ac_tables.fetch(section, {})
+          ex_section_tables.each do |name, ex_tbl|
+            ac_tbl = ac_section_tables.fetch(name, nil)
+            if !ac_tbl
+              puts "! expected table to exist, but not found in results (section=#{section}; name=#{name})"
+            elsif ac_tbl != ex_tbl
+              puts "! expected tables to match (section=#{section}; name=#{name})"
+            else
+              puts "# tables matched (section=#{section}; name=#{name})"
+            end
+          end
+        end
       end
     end
 
     desc 'exec_ref <rule_ref> <ctx_path> [schedule_url]', 'schedules a rule execution by reference'
-    def exec_ref(rule_ref, ctx_path, schedule_url=nil, revisions_url=nil)
+    def exec_ref(rule_ref, ctx_path, schedule_url=nil)
       puts "> scheduling rule execution (ref=#{rule_ref}; ctx=#{ctx_path})"
       scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
       ctx = File.exist?(ctx_path) ? JSON.parse(IO.read(ctx_path)) : {}
       req_id = scl.execute(rule_ref, ctx)
-      puts "> scheduled execution (req_id=#{req_id})"      
+      puts "> scheduled execution (req_id=#{req_id})"
     end
   end
 end
