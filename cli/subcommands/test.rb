@@ -124,19 +124,19 @@ module Subcommands
       package_name = Faker::Dune.planet.downcase.gsub(' ', '_')
       
       rules = Dir.glob(File.join(path, '*.rule')).inject({}) do |o, fn|
-        puts "> sending rule (#{fn})"
+        Support::Display.give("sending rule (#{fn})")
         name = File.basename(fn, '.rule')
         payload = {
           meta: { version: "99.99.99", package: package_name, name: name }, 
           content: IO.read(fn),
         }
         id = cl.send_rule(payload)
-        puts "< #{id}"
+        Support::Display.got_ok("#{id}")
         id ? o.merge(name => id) : o
       end
       
       Dir.glob(File.join(path, 'tables/**/*.json')).each do |fn|
-        puts "> sending table (#{fn})"
+        Support::Display.give("sending table (#{fn})")
         m = fn.match(/.*\/tables\/(\w+)\/([0-9]+\.[0-9]+\.[0-9]+)\/(\w+)\.json/)
         (pkg, ver, n) = m[1..3]
         payload = {
@@ -144,7 +144,7 @@ module Subcommands
           content: IO.read(fn),
         }
         id = cl.send_table(payload)
-        puts "< #{id}"
+        Support::Display.got_ok("#{id}")
       end
       
       scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
@@ -154,14 +154,14 @@ module Subcommands
       reqs_q = Queue.new
 
       reqs = {}
-      puts "# starting events listener"
+      Support::Display.info_strong("starting events listener")
       thr = Thread.new do
         req_ids = Set.new
         q_req_ids = Set.new
         ecl.subscribe(['audit'], {
                         service: {
                           registered: lambda do |o|
-                            puts "# event listener is ready"
+                            Support::Display.info("event listener is ready")
                             ready.signal
                             false
                           end
@@ -182,33 +182,33 @@ module Subcommands
                       })
       end
       
-      puts "# waiting for listener to be ready"
+      Support::Display.info_strong("waiting for listener to be ready")
       ready.wait
 
-      puts "# sending requests"
+      Support::Display.info("sending requests")
       reqs = rules.inject({}) do |o, (name, id)|
-        puts "# loading expectations (name=#{name})"
+        Support::Display.info("loading expectations (name=#{name})")
         expected = MultiJson.decode(IO.read(File.join(path, "#{name}.expected.json")))
         
-        puts "> scheduling rule test (name=#{name}; id=#{id})"
+        Support::Display.give("scheduling rule test (name=#{name}; id=#{id})")
         ctx_fn = File.join(path, "#{name}.context.json")
         ctx = File.exist?(ctx_fn) ? JSON.parse(IO.read(ctx_fn)) : {}
         req_id = scl.execute_adhoc(id, ctx)
-        puts "< scheduled rule test (name=#{name}; id=#{id}; req_id=#{req_id})"
+        Support::Display.got_ok("scheduled rule test (name=#{name}; id=#{id}; req_id=#{req_id})")
         
         o.merge(req_id => { name: name, expected: expected })
       end
 
       reqs.keys.each { |id| reqs_q << id }
       
-      puts "# waiting for events"
+      Support::Display.info_strong("waiting for events")
       thr.join
 
-      puts "# sleeping to wait for data to settle"
+      Support::Display.warn("sleeping to wait for data to settle")
       sleep(5)
       
       qcl = Clients::Query.new('http://localhost:8000')
-      puts "> checking expectations"
+      Support::Display.info("checking expectations")
       reqs.each do |req_id, vals|
         step = qcl.last_step_by_request(req_id)
         ac_tables = step.fetch('context', {}).fetch('tables', {})
@@ -218,11 +218,11 @@ module Subcommands
           ex_section_tables.each do |name, ex_tbl|
             ac_tbl = ac_section_tables.fetch(name, nil)
             if !ac_tbl
-              puts "! expected table to exist, but not found in results (section=#{section}; name=#{name})"
+              Support::Display.error("expected table to exist, but not found in results (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
             elsif ac_tbl != ex_tbl
-              puts "! expected tables to match (section=#{section}; name=#{name})"
+              Support::Display.error("expected tables to match (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
             else
-              puts "# tables matched (section=#{section}; name=#{name})"
+              Support::Display.info_strong("tables matched (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
             end
           end
         end

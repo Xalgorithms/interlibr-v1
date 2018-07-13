@@ -3,7 +3,7 @@ require 'rainbow'
 module Support
   class Display
     def self.info(m)
-      puts Rainbow("# #{m}").green
+      puts Rainbow("# #{m}").silver
     end
 
     def self.info_strong(m)
