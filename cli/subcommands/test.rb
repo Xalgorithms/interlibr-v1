@@ -212,29 +212,31 @@ module Subcommands
           req_ids << req_ids_q.pop
         end
         Support::Display.warn("mismatched request sizes (reqs=#{reqs.keys.size}; req_ids=#{req_ids.size})") if reqs.keys.size != req_ids.size
-      else
-        Support::Display.warn("sleeping to wait for data to settle")
-        sleep(5)
       end
 
       qcl = Clients::Query.new('http://localhost:8000')
       Support::Display.info("checking expectations")
       reqs.each do |req_id, vals|
         step = qcl.last_step_by_request(req_id)
-        ac_tables = step.fetch('context', {}).fetch('tables', {})
-        ex_tables = vals[:expected].fetch('tables', [])
-        ex_tables.each do |section, ex_section_tables|
-          ac_section_tables = ac_tables.fetch(section, {})
-          ex_section_tables.each do |name, ex_tbl|
-            ac_tbl = ac_section_tables.fetch(name, nil)
-            if !ac_tbl
-              Support::Display.error("expected table to exist, but not found in results (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
-            elsif ac_tbl != ex_tbl
-              Support::Display.error("expected tables to match (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
-            else
-              Support::Display.info_strong("tables matched (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
+        if step
+          ac_tables = step.fetch('context', {}).fetch('tables', {})
+          ex_tables = vals[:expected].fetch('tables', [])
+          ex_tables.each do |section, ex_section_tables|
+            ac_section_tables = ac_tables.fetch(section, {})
+            ex_section_tables.each do |name, ex_tbl|
+              ac_tbl = ac_section_tables.fetch(name, nil)
+              if !ac_tbl
+                Support::Display.error("expected table to exist, but not found in results (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
+                puts JSON.pretty_generate(step)
+              elsif ac_tbl != ex_tbl
+                Support::Display.error("expected tables to match (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
+              else
+                Support::Display.info_strong("tables matched (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
+              end
             end
           end
+        else
+          Support::Display.error("failed to find last step (test=#{vals[:name]}; req_id=#{req_id})")
         end
       end
     end
