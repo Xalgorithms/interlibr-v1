@@ -19,7 +19,7 @@ module Support
     end
 
     def self.warn(m)
-      puts Rainbow("# #{m}").yellow
+      puts Rainbow("? #{m}").yellow
     end
 
     def self.give(m)
