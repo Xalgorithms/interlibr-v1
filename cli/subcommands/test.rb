@@ -127,6 +127,7 @@ module Subcommands
       end
 
       def listen
+        Support::Display.info("starting events thread", "events")
         @thr = Thread.new do
           @req_ids = Set.new
           @q_req_ids = Set.new
@@ -142,30 +143,35 @@ module Subcommands
       end
 
       def wait_until_ready
+        Support::Display.info("waiting for listener to be ready", "events")
         @ready.wait
       end
       
       def join(expected_req_ids)
+        Support::Display.info("waiting for listener thread to exit", "events")
         expected_req_ids.each { |req_id| @reqs_q << req_id }
         if !@thr.join(10)
-          Support::Display.warn("all events probably arrived early, synchronizing with events thread")
+          Support::Display.warn("all events probably arrived early, synchronizing with events thread", "events")
           req_ids = Set.new
           while !@req_ids_q.empty?
             req_ids << @req_ids_q.pop
           end
-          Support::Display.warn("mismatched request sizes (reqs=#{expected_req_ids.size}; req_ids=#{req_ids.size})") if expected_req_ids.size != req_ids.size
+          Support::Display.warn("mismatched request sizes (reqs=#{expected_req_ids.size}; req_ids=#{req_ids.size})", "events") if expected_req_ids.size != req_ids.size
+        else
+          Support::Display.info("thread finished", "events")
         end
       end
 
       private
 
       def on_registered(o)
-        Support::Display.info("event listener is ready")
+        Support::Display.got_ok("event listener is ready", "events")
         @ready.signal
         false
       end
 
       def on_notified(o)
+        Support::Display.got_ok("received notification", "events")
         if ('execution' == o['context']['task'] && 'end' == o['context']['action'])
           req_id = o['args']['request_id']
           @req_ids << req_id
@@ -182,13 +188,13 @@ module Subcommands
 
     class Expectations
       def add(req_id, name, fn)
-        Support::Display.info("adding expectations (req_id=#{name}; name=#{name}; fn=#{fn})")
+        Support::Display.info("adding expectations (req_id=#{name}; name=#{name}; fn=#{fn})", "expectations")
         ex = File.exist?(fn) ? MultiJson.decode(IO.read(fn)) : {}
         @reqs = (@reqs || {}).merge(req_id => { name: name, expected: ex })
       end
 
       def check
-        Support::Display.info("checking expectations")
+        Support::Display.info("checking (reqs=#{@reqs.size})", "expectations")
         @qcl ||= Clients::Query.new('http://localhost:8000')
         @reqs.each do |req_id, vals|
           step = @qcl.last_step_by_request(req_id)
@@ -220,7 +226,8 @@ module Subcommands
     def exec(path, schedule_url=nil, revisions_url=nil, events_url)
       cl = Clients::Revisions.new(revisions_url || 'http://localhost:9292')
       package_name = Faker::Dune.planet.downcase.gsub(' ', '_')
-      
+
+      Support::Display.info_stage("gathering rules")
       rules = Dir.glob(File.join(path, '*.rule')).inject({}) do |o, fn|
         Support::Display.give("sending rule (#{fn})")
         name = File.basename(fn, '.rule')
@@ -233,6 +240,7 @@ module Subcommands
         id ? o.merge(name => id) : o
       end
       
+      Support::Display.info_stage("gathering tables")
       Dir.glob(File.join(path, 'tables/**/*.json')).each do |fn|
         Support::Display.give("sending table (#{fn})")
         m = fn.match(/.*\/tables\/(\w+)\/([0-9]+\.[0-9]+\.[0-9]+)\/(\w+)\.json/)
@@ -249,14 +257,10 @@ module Subcommands
       sel = SynchroEventsListener.new(events_url || 'http://localhost:4200')
       expects = Expectations.new
 
-      reqs = {}
-      Support::Display.info_strong("starting events listener")
-      sel.listen
-      
-      Support::Display.info_strong("waiting for listener to be ready")
+      sel.listen      
       sel.wait_until_ready
 
-      Support::Display.info("sending requests")
+      Support::Display.info_stage("sending requests")
       req_ids = rules.inject(Set.new) do |set, (name, id)|
         Support::Display.give("scheduling rule test (name=#{name}; id=#{id})")
         ctx_fn = File.join(path, "#{name}.context.json")
@@ -264,15 +268,15 @@ module Subcommands
         req_id = scl.execute_adhoc(id, ctx)
         Support::Display.got_ok("scheduled rule test (name=#{name}; id=#{id}; req_id=#{req_id})")
 
-        Support::Display.info("adding expectations (req_id=#{req_id}; name=#{name})")
         expects.add(req_id, name, File.join(path, "#{name}.expected.json"))
         
         set << req_id
       end
 
-      Support::Display.info_strong("waiting for events")
+      Support::Display.info_stage("waiting")      
       sel.join(req_ids)
 
+      Support::Display.info_stage("checking")
       expects.check
     end
 
