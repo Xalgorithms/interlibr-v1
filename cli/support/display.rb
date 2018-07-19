@@ -2,40 +2,44 @@ require 'rainbow'
 
 module Support
   class Display
-    def self.info(m)
-      puts Rainbow("# #{m}").silver
+    def self.info(m, tag = nil)
+      puts Rainbow("# #{maybe_with_tag(m, tag)}").silver
     end
 
-    def self.info_strong(m)
-      puts Rainbow("# #{m}").green.bold
+    def self.info_stage(m, tag = nil)
+      puts Rainbow("\n=> #{maybe_with_tag(m.upcase, tag)}").blue.bold
     end
 
-    def self.error(m)
-      puts Rainbow("! #{m}").red
+    def self.info_strong(m, tag = nil)
+      puts Rainbow("# #{maybe_with_tag(m, tag)}").green.bold
     end
 
-    def self.error_strong(m)
-      puts Rainbow("! #{m}").red.bold
+    def self.error(m, tag = nil)
+      puts Rainbow("! #{maybe_with_tag(m, tag)}").red
     end
 
-    def self.warn(m)
-      puts Rainbow("? #{m}").yellow
+    def self.error_strong(m, tag = nil)
+      puts Rainbow("! #{maybe_with_tag(m, tag)}").red.bold
     end
 
-    def self.give(m)
-      puts Rainbow("> #{m}").yellow
+    def self.warn(m, tag = nil)
+      puts Rainbow("? #{maybe_with_tag(m, tag)}").yellow
     end
 
-    def self.got_ok(m)
-      puts Rainbow("< #{m}").green
+    def self.give(m, tag = nil)
+      puts Rainbow("> #{maybe_with_tag(m, tag)}").yellow
     end
 
-    def self.got_warn(m)
-      puts Rainbow("< #{m}").yellow
+    def self.got_ok(m, tag = nil)
+      puts Rainbow("< #{maybe_with_tag(m, tag)}").green
+    end
+
+    def self.got_warn(m, tag = nil)
+      puts Rainbow("< #{maybe_with_tag(m, tag)}").yellow
     end
     
-    def self.got_fail(m)
-      puts Rainbow("< #{m}").red
+    def self.got_fail(m, tag = nil)
+      puts Rainbow("< #{maybe_with_tag(m, tag)}").red
     end
 
     def self.got(resp)
@@ -44,6 +48,12 @@ module Support
       else
         got_fail('failed')
       end
+    end
+
+    private
+
+    def self.maybe_with_tag(m, tag)
+      tag ? "(#{tag}) #{m}" : m
     end
   end
 end
