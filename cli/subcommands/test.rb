@@ -117,6 +117,70 @@ module Subcommands
         }
       end
     end
+
+    class SynchroEventsListener
+      def initialize(events_url)
+        @ready = Barrier.new
+        @cl = Clients::Events.new(events_url)        
+        @reqs_q = Queue.new
+        @req_ids_q = Queue.new
+      end
+
+      def listen
+        puts "Starting thread"
+        @thr = Thread.new do
+          puts "Started thread"
+          @req_ids = Set.new
+          @q_req_ids = Set.new
+          @cl.subscribe(['audit'], {
+                          service: {
+                            registered: method(:on_registered)
+                          },
+                          audit: {
+                            notified: method(:on_notified)
+                          }
+                        })
+        end
+      end
+
+      def wait_until_ready
+        @ready.wait
+      end
+      
+      def join(expected_reqs)
+        expected_reqs.keys.each { |req_id| @reqs_q << req_id }
+        if !@thr.join(10)
+          Support::Display.warn("all events probably arrived early, synchronizing with events thread")
+          req_ids = Set.new
+          while !@req_ids_q.empty?
+            req_ids << @req_ids_q.pop
+          end
+          Support::Display.warn("mismatched request sizes (reqs=#{expected_reqs.keys.size}; req_ids=#{req_ids.size})") if expected_reqs.keys.size != req_ids.size
+        end
+      end
+
+      private
+
+      def on_registered(o)
+        Support::Display.info("event listener is ready")
+        @ready.signal
+        false
+      end
+
+      def on_notified(o)
+        if ('execution' == o['context']['task'] && 'end' == o['context']['action'])
+          req_id = o['args']['request_id']
+          @req_ids << req_id
+          @req_ids_q << req_id
+        end
+
+        while !@reqs_q.empty?
+          @q_req_ids << @reqs_q.pop
+        end
+
+        @q_req_ids.any? && @q_req_ids.subset?(@req_ids)
+      end
+    end
     
     desc 'exec <path> [schedule_url] [revisions_url] [events_url]', 'Runs a simple execute loop, uploading unpackaged rules and tables to revisions directly'
     def exec(path, schedule_url=nil, revisions_url=nil, events_url)
@@ -148,45 +212,14 @@ module Subcommands
       end
       
       scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
-      ecl = Clients::Events.new(events_url || 'http://localhost:4200')
-
-      ready = Barrier.new
-      reqs_q = Queue.new
-      req_ids_q = Queue.new
+      sel = SynchroEventsListener.new(events_url || 'http://localhost:4200')
 
       reqs = {}
       Support::Display.info_strong("starting events listener")
-      thr = Thread.new do
-        req_ids = Set.new
-        q_req_ids = Set.new
-        ecl.subscribe(['audit'], {
-                        service: {
-                          registered: lambda do |o|
-                            Support::Display.info("event listener is ready")
-                            ready.signal
-                            false
-                          end
-                        },
-                        audit: {
-                          notified: lambda do |o|
-                            if ('execution' == o['context']['task'] && 'end' == o['context']['action'])
-                              req_id = o['args']['request_id']
-                              req_ids << req_id
-                              req_ids_q << req_id
-                            end
-
-                            while !reqs_q.empty?
-                              q_req_ids << reqs_q.pop
-                            end
-
-                            q_req_ids.any? && q_req_ids.subset?(req_ids)
-                          end
-                        }
-                      })
-      end
+      sel.listen
       
       Support::Display.info_strong("waiting for listener to be ready")
-      ready.wait
+      sel.wait_until_ready
 
       Support::Display.info("sending requests")
       reqs = rules.inject({}) do |o, (name, id)|
@@ -204,17 +237,8 @@ module Subcommands
         o.merge(req_id => { name: name, expected: expected })
       end
 
-      reqs.keys.each { |id| reqs_q << id }
-      
       Support::Display.info_strong("waiting for events")
-      if !thr.join(10)
-        Support::Display.warn("all events probably arrived early, synchronizing with events thread")
-        req_ids = Set.new
-        while !req_ids_q.empty?
-          req_ids << req_ids_q.pop
-        end
-        Support::Display.warn("mismatched request sizes (reqs=#{reqs.keys.size}; req_ids=#{req_ids.size})") if reqs.keys.size != req_ids.size
-      end
+      sel.join(reqs)
 
       qcl = Clients::Query.new('http://localhost:8000')
       Support::Display.info("checking expectations")
