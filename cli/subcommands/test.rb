@@ -191,7 +191,9 @@ module Subcommands
       Support::Display.info("sending requests")
       reqs = rules.inject({}) do |o, (name, id)|
         Support::Display.info("loading expectations (name=#{name})")
-        expected = MultiJson.decode(IO.read(File.join(path, "#{name}.expected.json")))
+        ex_fn = File.join(path, "#{name}.expected.json")
+        expected = {}
+        expected = MultiJson.decode(IO.read(ex_fn)) if File.exist?(ex_fn)
         
         Support::Display.give("scheduling rule test (name=#{name}; id=#{id})")
         ctx_fn = File.join(path, "#{name}.context.json")
