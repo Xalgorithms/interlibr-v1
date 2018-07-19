@@ -127,9 +127,7 @@ module Subcommands
       end
 
       def listen
-        puts "Starting thread"
         @thr = Thread.new do
-          puts "Started thread"
           @req_ids = Set.new
           @q_req_ids = Set.new
           @cl.subscribe(['audit'], {
@@ -147,15 +145,15 @@ module Subcommands
         @ready.wait
       end
       
-      def join(expected_reqs)
-        expected_reqs.keys.each { |req_id| @reqs_q << req_id }
+      def join(expected_req_ids)
+        expected_req_ids.each { |req_id| @reqs_q << req_id }
         if !@thr.join(10)
           Support::Display.warn("all events probably arrived early, synchronizing with events thread")
           req_ids = Set.new
           while !@req_ids_q.empty?
             req_ids << @req_ids_q.pop
           end
-          Support::Display.warn("mismatched request sizes (reqs=#{expected_reqs.keys.size}; req_ids=#{req_ids.size})") if expected_reqs.keys.size != req_ids.size
+          Support::Display.warn("mismatched request sizes (reqs=#{expected_req_ids.size}; req_ids=#{req_ids.size})") if expected_req_ids.size != req_ids.size
         end
       end
 
@@ -179,6 +177,42 @@ module Subcommands
         end
 
         @q_req_ids.any? && @q_req_ids.subset?(@req_ids)
+      end
+    end
+
+    class Expectations
+      def add(req_id, name, fn)
+        Support::Display.info("adding expectations (req_id=#{name}; name=#{name}; fn=#{fn})")
+        ex = File.exist?(fn) ? MultiJson.decode(IO.read(fn)) : {}
+        @reqs = (@reqs || {}).merge(req_id => { name: name, expected: ex })
+      end
+
+      def check
+        Support::Display.info("checking expectations")
+        @qcl ||= Clients::Query.new('http://localhost:8000')
+        @reqs.each do |req_id, vals|
+          step = @qcl.last_step_by_request(req_id)
+          if step
+            ac_tables = step.fetch('context', {}).fetch('tables', {})
+            ex_tables = vals[:expected].fetch('tables', [])
+            ex_tables.each do |section, ex_section_tables|
+              ac_section_tables = ac_tables.fetch(section, {})
+              ex_section_tables.each do |name, ex_tbl|
+                ac_tbl = ac_section_tables.fetch(name, nil)
+                if !ac_tbl
+                  Support::Display.error("expected table to exist, but not found in results (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
+                  puts JSON.pretty_generate(step)
+                elsif ac_tbl != ex_tbl
+                  Support::Display.error("expected tables to match (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
+                else
+                  Support::Display.info_strong("tables matched (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
+                end
+              end
+            end
+          else
+            Support::Display.error("failed to find last step (test=#{vals[:name]}; req_id=#{req_id})")
+          end
+        end
       end
     end
     
@@ -213,6 +247,7 @@ module Subcommands
       
       scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
       sel = SynchroEventsListener.new(events_url || 'http://localhost:4200')
+      expects = Expectations.new
 
       reqs = {}
       Support::Display.info_strong("starting events listener")
@@ -222,49 +257,23 @@ module Subcommands
       sel.wait_until_ready
 
       Support::Display.info("sending requests")
-      reqs = rules.inject({}) do |o, (name, id)|
-        Support::Display.info("loading expectations (name=#{name})")
-        ex_fn = File.join(path, "#{name}.expected.json")
-        expected = {}
-        expected = MultiJson.decode(IO.read(ex_fn)) if File.exist?(ex_fn)
-        
+      req_ids = rules.inject(Set.new) do |set, (name, id)|
         Support::Display.give("scheduling rule test (name=#{name}; id=#{id})")
         ctx_fn = File.join(path, "#{name}.context.json")
         ctx = File.exist?(ctx_fn) ? JSON.parse(IO.read(ctx_fn)) : {}
         req_id = scl.execute_adhoc(id, ctx)
         Support::Display.got_ok("scheduled rule test (name=#{name}; id=#{id}; req_id=#{req_id})")
+
+        Support::Display.info("adding expectations (req_id=#{req_id}; name=#{name})")
+        expects.add(req_id, name, File.join(path, "#{name}.expected.json"))
         
-        o.merge(req_id => { name: name, expected: expected })
+        set << req_id
       end
 
       Support::Display.info_strong("waiting for events")
-      sel.join(reqs)
+      sel.join(req_ids)
 
-      qcl = Clients::Query.new('http://localhost:8000')
-      Support::Display.info("checking expectations")
-      reqs.each do |req_id, vals|
-        step = qcl.last_step_by_request(req_id)
-        if step
-          ac_tables = step.fetch('context', {}).fetch('tables', {})
-          ex_tables = vals[:expected].fetch('tables', [])
-          ex_tables.each do |section, ex_section_tables|
-            ac_section_tables = ac_tables.fetch(section, {})
-            ex_section_tables.each do |name, ex_tbl|
-              ac_tbl = ac_section_tables.fetch(name, nil)
-              if !ac_tbl
-                Support::Display.error("expected table to exist, but not found in results (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
-                puts JSON.pretty_generate(step)
-              elsif ac_tbl != ex_tbl
-                Support::Display.error("expected tables to match (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
-              else
-                Support::Display.info_strong("tables matched (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
-              end
-            end
-          end
-        else
-          Support::Display.error("failed to find last step (test=#{vals[:name]}; req_id=#{req_id})")
-        end
-      end
+      expects.check
     end
 
     desc 'exec_ref <rule_ref> <ctx_path> [schedule_url]', 'schedules a rule execution by reference'
