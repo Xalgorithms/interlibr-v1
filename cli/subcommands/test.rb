@@ -1,6 +1,7 @@
 require 'active_support/core_ext/hash'
 require 'faker'
 require 'multi_json'
+require 'terminal-table'
 require 'thor'
 require 'thread'
 require 'timeout'
@@ -120,7 +121,10 @@ module Subcommands
 
     class SynchroEventsListener
       def initialize(events_url)
+        Support::Display.info("connecting to service (url=#{events_url})", "events")
         @ready = Barrier.new
+        @registered = false
+        @registered_mutex = Mutex.new
         @cl = Clients::Events.new(events_url)        
         @reqs_q = Queue.new
         @req_ids_q = Queue.new
@@ -142,23 +146,46 @@ module Subcommands
         end
       end
 
+      def thread_alive?
+        @thr.join(0.75)
+        @thr && @thr.alive?
+      end
+
       def wait_until_ready
-        Support::Display.info("waiting for listener to be ready", "events")
-        @ready.wait
+        if thread_alive?
+          Support::Display.info("waiting for listener to be ready", "events")
+          @registered || @ready.wait
+        else
+          Support::Display.warn("thread is not alive", "events")
+        end
+      end
+
+      def drain_received_q
+        ids = Set.new
+        while !@req_ids_q.empty?
+          ids << @req_ids_q.pop
+        end
+        ids
       end
       
       def join(expected_req_ids)
-        Support::Display.info("waiting for listener thread to exit", "events")
-        expected_req_ids.each { |req_id| @reqs_q << req_id }
-        if !@thr.join(10)
-          Support::Display.warn("all events probably arrived early, synchronizing with events thread", "events")
-          req_ids = Set.new
-          while !@req_ids_q.empty?
-            req_ids << @req_ids_q.pop
+        if thread_alive?
+          received_ids = drain_received_q
+          if received_ids == expected_req_ids
+            Support::Display.info("all requests have arrived", "events")
+          else
+            Support::Display.info("waiting for listener thread to exit", "events")
+            expected_req_ids.each { |req_id| @reqs_q << req_id }
+            if !@thr.join(10)
+              Support::Display.warn("all events probably arrived early, synchronizing with events thread", "events")
+              received_ids = received_ids + drain_received_q
+              Support::Display.warn("mismatched request sizes (reqs=#{expected_req_ids.size}; received_ids=#{received_ids.size})", "events") if expected_req_ids.size != received_ids.size
+            else
+              Support::Display.info("thread finished", "events")
+            end
           end
-          Support::Display.warn("mismatched request sizes (reqs=#{expected_req_ids.size}; req_ids=#{req_ids.size})", "events") if expected_req_ids.size != req_ids.size
         else
-          Support::Display.info("thread finished", "events")
+          Support::Display.warn("thread is not alive", "events")
         end
       end
 
@@ -166,6 +193,7 @@ module Subcommands
 
       def on_registered(o)
         Support::Display.got_ok("event listener is ready", "events")
+        @registered_mutex.synchronize { @registered = true }
         @ready.signal
         false
       end
@@ -193,6 +221,27 @@ module Subcommands
         @reqs = (@reqs || {}).merge(req_id => { name: name, expected: ex })
       end
 
+      def self.show_table(section, name, tbl)
+        headings = tbl.inject(Set.new) do |set, row|
+          set + Set.new(row.keys)
+        end
+        term_table = Terminal::Table.new(
+          style: { width: 120 },
+          title: "#{section}:#{name}",
+          headings: headings,
+          rows: tbl.map do |row|
+            headings.map { |k| row.fetch(k, nil) }
+          end)
+        puts term_table
+        puts
+      end
+
+      def self.show_tables_from_step(step)
+        step.fetch("context", {}).fetch("tables", {}).each do |section, tbls|
+          tbls.each { |name, tbl| show_table(section, name, tbl) }
+        end
+      end
+
       def check
         Support::Display.info("checking (reqs=#{@reqs.size})", "expectations")
         @qcl ||= Clients::Query.new('http://localhost:8000')
@@ -211,6 +260,7 @@ module Subcommands
                 elsif ac_tbl != ex_tbl
                   Support::Display.error("expected tables to match (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
                 else
+                  Expectations::show_table(section, name, ac_tbl)
                   Support::Display.info_strong("tables matched (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
                 end
               end
@@ -221,7 +271,10 @@ module Subcommands
         end
       end
     end
-    
+
+    no_commands do
+    end
+      
     desc 'exec <path> [schedule_url] [revisions_url] [events_url]', 'Runs a simple execute loop, uploading unpackaged rules and tables to revisions directly'
     def exec(path, schedule_url=nil, revisions_url=nil, events_url)
       cl = Clients::Revisions.new(revisions_url || 'http://localhost:9292')
@@ -257,7 +310,7 @@ module Subcommands
       sel = SynchroEventsListener.new(events_url || 'http://localhost:4200')
       expects = Expectations.new
 
-      sel.listen      
+      sel.listen
       sel.wait_until_ready
 
       Support::Display.info_stage("sending requests")
@@ -280,13 +333,28 @@ module Subcommands
       expects.check
     end
 
-    desc 'exec_ref <rule_ref> <ctx_path> [schedule_url]', 'schedules a rule execution by reference'
-    def exec_ref(rule_ref, ctx_path, schedule_url=nil)
-      puts "> scheduling rule execution (ref=#{rule_ref}; ctx=#{ctx_path})"
-      scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
+    desc 'exec_ref <rule_ref> <ctx_path> [schedule_url] [events_url] [query_url]', 'schedules a rule execution by reference'
+    def exec_ref(rule_ref, ctx_path, schedule_url=nil, events_url=nil, query_url=nil)
+      Support::Display.info("scheduling rule execution (ref=#{rule_ref}; data_path=#{ctx_path})")
       ctx = File.exist?(ctx_path) ? JSON.parse(IO.read(ctx_path)) : {}
+
+      sel = SynchroEventsListener.new(events_url || 'http://localhost:4200')
+      sel.listen
+      sel.wait_until_ready
+
+      Support::Display.info_stage("scheduling")
+      Support::Display.give("scheduling execution")
+      scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
       req_id = scl.execute(rule_ref, ctx)
-      puts "> scheduled execution (req_id=#{req_id})"
+      Support::Display.got_ok("scheduled execution (req_id=#{req_id})")
+
+      Support::Display.info_stage("waiting")      
+      sel.join(Set.new([req_id]))
+
+      Support::Display.info_stage("getting results")      
+      qcl = Clients::Query.new(query_url || 'http://localhost:8000')
+      step = qcl.last_step_by_request(req_id)
+      show_tables_from_step(step)
     end
   end
 end

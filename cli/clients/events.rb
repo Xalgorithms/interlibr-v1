@@ -17,6 +17,7 @@ module Clients
     end
 
     def subscribe(topics, fns)
+      Support::Display.give("subscribing (topics=#{topics})", "events_client")
       resp = @conn.post('/subscriptions', topics: topics)
       if resp.status == 200
         Support::Display.give("listening (url=#{resp.body['url']})", "events_client")
