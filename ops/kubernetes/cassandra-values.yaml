@@ -1,0 +1,5 @@
+nodes:
+  enabled: true
+  selector:
+    nodeSelector:
+      cloud.google.com/gke-nodepool: pool-db

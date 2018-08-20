@@ -1,0 +1,4 @@
+mongodbUsername: interlibr
+mongodbDatabase: interlibr
+# replicaSet:
+#   enabled: true

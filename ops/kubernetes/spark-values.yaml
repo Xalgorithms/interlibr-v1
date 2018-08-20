@@ -1,0 +1,4 @@
+Zepplin:
+  Persistence:
+    Config:
+      Enabled: false
