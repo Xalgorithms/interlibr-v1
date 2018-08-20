@@ -38,3 +38,6 @@
 	path = libs/storage
 	url = git@github.com:Xalgorithms/lib-storage.git
 	branch = master
+[submodule "ops/charts"]
+	path = ops/charts
+	url = git@github.com:Xalgorithms/charts.git
