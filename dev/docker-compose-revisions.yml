@@ -12,14 +12,3 @@ services:
     depends_on:
       - mongo
       - cassandra
-  # service-schedule:
-  #   image: xalgorithms/service-il-schedule:0.1.2
-  #   depends_on:
-  #     - mongo
-  #     - cassandra
-  #     - kafka
-  #   environment:
-  #     - APPLICATION_SECRET="${SCHEDULE_APPLICATION_SECRET}"
-  #   ports:
-  #     - 6000:9000
-    

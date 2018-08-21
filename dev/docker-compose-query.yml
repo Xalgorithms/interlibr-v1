@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  service-query:    
+    image: xalgorithms/service-il-query:latest-development
+    ports:
+      - "8000:9000"
+    depends_on:
+      - mongo
+      - kafka
+    environment:
+      MONGO_URL: "mongodb://mongo:27017"
+      KAFKA_BROKER: "kafka:9092"
+    

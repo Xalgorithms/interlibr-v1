@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  service-schedule:    
+    image: xalgorithms/service-il-schedule:latest-development
+    depends_on:
+      - mongo
+      - kafka
+    environment:
+      MONGO_URL: "mongodb://mongo:27017"
+      KAFKA_BROKER: "kafka:9092"
+    
