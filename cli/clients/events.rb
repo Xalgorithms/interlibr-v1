@@ -8,12 +8,13 @@ require_relative '../support/display'
 
 module Clients
   class Events
-    def initialize(url)
-      @conn = Faraday.new(url) do |f|
+    def initialize(url_api, url_ws)
+      @conn = Faraday.new(url_api) do |f|
         f.request(:json) 
         f.response(:json, :content_type => /\bjson$/)
         f.adapter(Faraday.default_adapter)
       end
+      @url_ws = url_ws
     end
 
     def subscribe(topics, fns)
@@ -22,7 +23,9 @@ module Clients
       if resp.status == 200
         Support::Display.give("listening (url=#{resp.body['url']})", "events_client")
         EM.run do
-          ws = Faye::WebSocket::Client.new("ws://localhost:8888#{resp.body['url']}")
+          url = "#{@url_ws}#{resp.body['url']}"
+          Support::Display.give("connecting socket (url=#{url})", "events_client")
+          ws = Faye::WebSocket::Client.new(url)
           ws.on(:open) do |evt|
             #            p [:open, evt]
             ws.send(MultiJson.encode(name: 'confirm', payload: { id: resp.body['id'] }))
@@ -39,7 +42,7 @@ module Clients
           end
 
           ws.on(:close) do |evt|
-            #            p [:close, evt]
+            Support::Display.got_ok("socket closed", "events_client")
             ws = nil
             EM.stop
           end
