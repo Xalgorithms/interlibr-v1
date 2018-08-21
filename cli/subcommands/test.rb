@@ -120,12 +120,12 @@ module Subcommands
     end
 
     class SynchroEventsListener
-      def initialize(events_url)
-        Support::Display.info("connecting to service (url=#{events_url})", "events")
+      def initialize(events_url, ws_url)
+        Support::Display.info("connecting to service (events_url=#{events_url}, ws_url=#{ws_url})", "events")
         @ready = Barrier.new
         @registered = false
         @registered_mutex = Mutex.new
-        @cl = Clients::Events.new(events_url)        
+        @cl = Clients::Events.new(events_url, ws_url)
         @reqs_q = Queue.new
         @req_ids_q = Queue.new
       end
@@ -215,6 +215,10 @@ module Subcommands
     end
 
     class Expectations
+      def initialize(url)
+        @qcl = Clients::Query.new(url || 'http://localhost:8000')
+      end
+      
       def add(req_id, name, fn)
         Support::Display.info("adding expectations (req_id=#{name}; name=#{name}; fn=#{fn})", "expectations")
         ex = File.exist?(fn) ? MultiJson.decode(IO.read(fn)) : {}
@@ -244,7 +248,6 @@ module Subcommands
 
       def check
         Support::Display.info("checking (reqs=#{@reqs.size})", "expectations")
-        @qcl ||= Clients::Query.new('http://localhost:8000')
         @reqs.each do |req_id, vals|
           step = @qcl.last_step_by_request(req_id)
           if step
@@ -255,8 +258,7 @@ module Subcommands
               ex_section_tables.each do |name, ex_tbl|
                 ac_tbl = ac_section_tables.fetch(name, nil)
                 if !ac_tbl
-                  Support::Display.error("expected table to exist, but not found in results (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
-                  puts JSON.pretty_generate(step)
+                  Support::Display.error("expected table to exist, but not found in results (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id}); tables=#{ac_section_tables.keys}")
                 elsif ac_tbl != ex_tbl
                   Support::Display.error("expected tables to match (test=#{vals[:name]}; section=#{section}; name=#{name}; req_id=#{req_id})")
                 else
@@ -275,11 +277,19 @@ module Subcommands
     no_commands do
     end
       
-    desc 'exec <path> [schedule_url] [revisions_url] [events_url]', 'Runs a simple execute loop, uploading unpackaged rules and tables to revisions directly'
-    def exec(path, schedule_url=nil, revisions_url=nil, events_url)
+    desc 'exec <path> [schedule_url] [revisions_url] [events_url] [ws_url] [query_url]', 'Runs a simple execute loop, uploading unpackaged rules and tables to revisions directly'
+    def exec(path, schedule_url=nil, revisions_url=nil, events_url=nil, ws_url=nil, query_url=nil)
       cl = Clients::Revisions.new(revisions_url || 'http://localhost:9292')
       package_name = Faker::Dune.planet.downcase.gsub(' ', '_')
 
+      Support::Display.info_stage("params")
+      Support::Display.info("+ path=#{path}")      
+      Support::Display.info("+ schedule_url=#{schedule_url}")
+      Support::Display.info("+ revisions_url=#{revisions_url}")
+      Support::Display.info("+ events_url=#{events_url}")
+      Support::Display.info("+ ws_url=#{ws_url}")
+      Support::Display.info("+ query_url=#{query_url}")
+      
       Support::Display.info_stage("gathering rules")
       rules = Dir.glob(File.join(path, '*.rule')).inject({}) do |o, fn|
         Support::Display.give("sending rule (#{fn})")
@@ -307,8 +317,8 @@ module Subcommands
       end
       
       scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
-      sel = SynchroEventsListener.new(events_url || 'http://localhost:4200')
-      expects = Expectations.new
+      sel = SynchroEventsListener.new(events_url || 'http://localhost:4200', ws_url || 'ws://localhost:4201')
+      expects = Expectations.new(query_url)
 
       sel.listen
       sel.wait_until_ready
