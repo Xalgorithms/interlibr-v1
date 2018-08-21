@@ -13,13 +13,20 @@ module Clients
 
     def last_step_by_request(req_id)
       resp = @conn.get("/requests/#{req_id}/traces")
-      resp.status == 200 ? resp.body.first["steps"].sort do |a, b|
-                             if a['index'] != b['index']
-                               a['index'] <=> b['index']
-                             else
-                               b['phase'] == 'start' ? 1 : -1
-                             end
-                           end.last : nil
+      rv = nil
+      if resp.status == 200
+        if resp.body && resp.body.length > 0
+          rv = resp.body.first["steps"].sort do |a, b|
+            if a['index'] != b['index']
+              a['index'] <=> b['index']
+            else
+              b['phase'] == 'start' ? 1 : -1
+            end
+          end.last
+        end
+      end
+
+      rv
     end
   end    
 end
