@@ -1,0 +1,24 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: services-query
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: query
+  template:
+    metadata:
+      labels:
+        app: query
+    spec:
+      containers:
+        - name: query
+          image: {{ .Values.images.query}}:{{ .Values.versions.query }}
+          env:
+            - name: KAFKA_BROKER
+              value: {{ .Values.resources.kafka.broker }}
+            - name: MONGO_URL
+              value: {{ .Values.resources.mongo.url }}
+            - name: MONGO_DATABASE
+              value: {{ .Values.resources.mongo.database }}

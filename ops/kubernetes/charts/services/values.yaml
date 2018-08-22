@@ -1,0 +1,39 @@
+# Default values for services.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+versions:
+  query: 0.1.6
+  schedule: 0.1.6
+  execute: 0.0.6
+  revisions_github: 0.0.15-development
+  events: 0.0.10-development
+
+ports:
+  query:
+    api: 9000
+  schedule:
+    api: 9000
+  revisions_github:
+    api: 5000
+  events:
+    api: 4200
+    events: 4201
+
+images:
+  query: docker.io/xalgorithms/service-il-query
+  schedule: docker.io/xalgorithms/service-il-schedule
+  execute: docker.io/xalgorithms/service-il-execute
+  events: docker.io/xalgorithms/service-il-events
+  revisions_github: docker.io/xalgorithms/service-il-revisions-github
+    
+resources:
+  mongo:
+    url: mongodb://mongo-mongodb:27017
+    database: interlibr
+  kafka:
+    broker: kafka:9092
+  cassandra:
+    host: cassandra

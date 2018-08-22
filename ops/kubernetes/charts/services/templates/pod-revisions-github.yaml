@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: services-revisions-github
+  labels:
+    app: revisions-github
+spec:
+  containers:
+    - name: revisions-github
+      image: {{ .Values.images.revisions_github}}:{{ .Values.versions.revisions_github }}
+      command: ["bundle"]
+      args: ["exec", "rackup", "-p", "{{ .Values.ports.revisions_github.api }}", "--host", "0.0.0.0"]
+      env:
+        - name: MONGO_URL
+          value: "{{ .Values.resources.mongo.url }}/{{ .Values.resources.mongo.database }}"
+        - name: CASSANDRA_HOSTS
+          value: "{{ .Values.resources.cassandra.host }}"

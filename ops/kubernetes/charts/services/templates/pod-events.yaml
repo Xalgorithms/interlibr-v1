@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: services-events
+  labels:
+    app: events
+spec:
+  containers:
+    - name: events
+      image: {{ .Values.images.events}}:{{ .Values.versions.events }}
+      command: ["npm"]
+      args: ["run", "start-production"]
+      env:
+        - name: KAFKA_BROKER
+          value: {{ .Values.resources.kafka.broker }}
+        - name: PORT_API
+          value: "{{ .Values.ports.events.api }}"
+        - name: PORT_EVENTS
+          value: "{{ .Values.ports.events.events }}"

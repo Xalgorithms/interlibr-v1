@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Core services for Interlibr
+name: services
+version: 0.0.1

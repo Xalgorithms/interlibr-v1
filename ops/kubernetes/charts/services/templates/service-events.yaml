@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: services-events
+spec:
+  type: LoadBalancer
+  selector:
+    app: events
+  ports:
+  - name: api
+    port: 80
+    targetPort: {{ .Values.ports.events.api }}
+  - name: events
+    port: 8000
+    targetPort: {{ .Values.ports.events.events }}

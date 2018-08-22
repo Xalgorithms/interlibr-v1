@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: services-revisions-github
+spec:
+  type: LoadBalancer
+  selector:
+    app: revisions-github
+  ports:
+  - name: http
+    port: 80
+    targetPort: {{ .Values.ports.revisions_github.api }}
