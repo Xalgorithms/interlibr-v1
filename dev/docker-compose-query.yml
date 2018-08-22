@@ -10,5 +10,6 @@ services:
       - kafka
     environment:
       MONGO_URL: "mongodb://mongo:27017"
+      MONGO_DATABASE: "interlibr"
       KAFKA_BROKER: "kafka:9092"
     
