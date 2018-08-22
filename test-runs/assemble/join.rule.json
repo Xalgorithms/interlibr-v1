@@ -1,0 +1,28 @@
+{
+  "steps": [
+    {
+      "reference": {
+        "package": "test",
+        "id": "origin",
+        "version": "0.0.0",
+        "name": "table_origin"
+      },
+      "indexes": [
+
+      ],
+      "name": "require"
+    },
+    {
+      "reference": {
+        "package": "test",
+        "id": "joiner",
+        "version": "0.0.0",
+        "name": "table_joiner"
+      },
+      "indexes": [
+
+      ],
+      "name": "require"
+    }
+  ]
+}

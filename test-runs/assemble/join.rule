@@ -1,0 +1,5 @@
+REQUIRE test:origin:0.0.0 AS table_origin;
+REQUIRE test:joiner:0.0.0 AS table_joiner;
+
+
+

@@ -1,0 +1,19 @@
+#This rule pairs arabic numerals with their roman and english equivalents.
+#Replication of scala rule interpreter Issue 11.
+
+#Table with arabic and english.
+REQUIRE test:a:0.0.1;
+
+#Table with arabic and roman.
+REQUIRE test:b:0.0.1;
+
+# No join at all
+ASSEMBLE full_table
+  COLUMNS FROM table:a
+  COLUMNS FROM table:b WHEN shared == @shared;
+
+# empty table
+ASSEMBLE half_table
+  COLUMNS FROM table:a
+  COLUMN roman FROM table:b WHEN shared == @shared;
+  

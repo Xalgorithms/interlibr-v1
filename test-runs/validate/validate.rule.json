@@ -1,0 +1,16 @@
+{
+  "steps": [
+    {
+      "reference": {
+        "package": "test",
+        "id": "validate",
+        "version": "0.0.0",
+        "name": "validate"
+      },
+      "indexes": [
+
+      ],
+      "name": "require"
+    }
+  ]
+}

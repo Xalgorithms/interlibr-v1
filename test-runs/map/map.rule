@@ -1,0 +1,7 @@
+REQUIRE test:table0:0.0.1 AS table0;
+
+ASSEMBLE t COLUMNS FROM table:table0;
+MAP table:t
+  USING c = add(@a, @b)
+  USING d = add(c, @a)
+  USING e = @b;
