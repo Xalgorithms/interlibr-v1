@@ -277,19 +277,23 @@ module Subcommands
     no_commands do
     end
       
-    desc 'exec <path> [schedule_url] [revisions_url] [events_url] [ws_url] [query_url]', 'Runs a simple execute loop, uploading unpackaged rules and tables to revisions directly'
-    def exec(path, schedule_url=nil, revisions_url=nil, events_url=nil, ws_url=nil, query_url=nil)
-      cl = Clients::Revisions.new(revisions_url || 'http://localhost:9292')
+    desc 'exec <path> <profile>', 'Runs a simple execute loop, uploading unpackaged rules and tables to revisions directly'
+    def exec(path, profile)
+      profile = MultiJson.decode(IO.read("profiles/#{profile}.json"))
+      
       package_name = Faker::Dune.planet.downcase.gsub(' ', '_')
 
-      Support::Display.info_stage("params")
-      Support::Display.info("+ path=#{path}")      
-      Support::Display.info("+ schedule_url=#{schedule_url}")
-      Support::Display.info("+ revisions_url=#{revisions_url}")
-      Support::Display.info("+ events_url=#{events_url}")
-      Support::Display.info("+ ws_url=#{ws_url}")
-      Support::Display.info("+ query_url=#{query_url}")
+      Support::Display.info_stage("profile")
+      Support::Display.info("path=#{path}")      
+      profile.each do |section, vs|
+        Support::Display.info("#{section}")
+        vs.each do |k, v|
+          Support::Display.info("  #{k}: #{v}")
+        end
+      end
       
+      cl = Clients::Revisions.new(profile['revisions']['url'])
+
       Support::Display.info_stage("gathering rules")
       rules = Dir.glob(File.join(path, '*.rule')).inject({}) do |o, fn|
         Support::Display.give("sending rule (#{fn})")
@@ -316,9 +320,9 @@ module Subcommands
         Support::Display.got_ok("#{id}")
       end
       
-      scl = Clients::Schedule.new(schedule_url || 'http://localhost:9000')
-      sel = SynchroEventsListener.new(events_url || 'http://localhost:4200', ws_url || 'ws://localhost:4201')
-      expects = Expectations.new(query_url)
+      scl = Clients::Schedule.new(profile['schedule']['url'])
+      sel = SynchroEventsListener.new(profile['events']['url'], profile['events']['ws_url'])
+      expects = Expectations.new(profile['query']['url'])
 
       sel.listen
       sel.wait_until_ready

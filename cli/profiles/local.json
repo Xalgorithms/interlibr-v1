@@ -1,0 +1,15 @@
+{
+  "schedule" : {
+    "url" : "http://localhost:9000"
+  },
+  "query" : {
+    "url" : "http://localhost:8000"
+  },
+  "revisions" : {
+    "url" : "http://localhost:5000"
+  },
+  "events" : {
+    "url" : "http://localhost:4200",
+    "ws_url" : "ws://localhost:4201"
+  }
+}
