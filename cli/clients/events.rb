@@ -1,3 +1,4 @@
+require 'em/pure_ruby'
 require 'eventmachine'
 require 'faraday'
 require 'faraday_middleware'

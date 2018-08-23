@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: fabric-init
+spec:
+  template:
+    spec:
+      containers:
+      - name: cli
+        image: docker.io/xalgorithms/il-cli:latest-development
+        command: ["bundle", "exec", "ruby", "xa", "fabric", "init", "production"]
+      restartPolicy: Never
+  backoffLimit: 4
