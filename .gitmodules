@@ -41,3 +41,6 @@
 [submodule "ops/charts"]
 	path = ops/charts
 	url = git@github.com:Xalgorithms/charts.git
+[submodule "docs/examples"]
+	path = docs/examples
+	url = git@github.com:Xalgorithms/general-examples.git
