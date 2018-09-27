@@ -5,10 +5,10 @@ class Original < Support::SimpleMigration
     [
       'DROP KEYSPACE IF EXISTS interlibr',
       "CREATE KEYSPACE interlibr WITH REPLICATION =  { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }",
-      'CREATE TABLE interlibr.when_keys (section text, key text, PRIMARY KEY (section, key))',
+      'CREATE TABLE interlibr.when_keys (section text, key text, refs counter, PRIMARY KEY (section, key))',
       'CREATE TABLE interlibr.whens (section text, key text, op text, val text, rule_id text, PRIMARY KEY (rule_id, section, key))',
-      'CREATE TABLE interlibr.effective (country text, region text, timezone text, starts timestamp, ends timestamp, party text, rule_id text, PRIMARY KEY (rule_id))',
-      'CREATE TABLE interlibr.envelopes (document_id text, party text, country text, region text, timezone text, issued timestamp, PRIMARY KEY (document_id, party))',
+      'CREATE TABLE interlibr.effective (country text, region text, timezone text, starts timestamp, ends timestamp, key text, rule_id text, PRIMARY KEY (rule_id, country, region, key))',
+      'CREATE TABLE interlibr.envelopes (document_id text, key text, country text, region text, timezone text, issued timestamp, PRIMARY KEY (document_id, key))',
     ]
   end
 end
