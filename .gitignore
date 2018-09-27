@@ -1,2 +1,3 @@
 dev/data
 .DS_Store
+ops/docker-compose/data/
