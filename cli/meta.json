@@ -8,7 +8,9 @@
         "il.compute.applicable",
         "il.compute.revision",
         "il.verify.rule_execution",
-        "il.emit.audit"
+        "il.verify.effective",
+        "il.emit.audit",
+        "il.emit.verification"
       ]
     },
     "cassandra" : {
