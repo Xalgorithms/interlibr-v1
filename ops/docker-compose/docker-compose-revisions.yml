@@ -2,7 +2,7 @@ version: '3'
 
 services:
   service-revisions:
-    image: xalgorithms/xadf-revisions-service:latest-development
+    image: xalgorithms/service-il-revisions-github:latest-development
     command: bundle exec rackup -p 5000 --host 0.0.0.0
     ports:
       - 5000:5000
