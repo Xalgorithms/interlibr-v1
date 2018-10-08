@@ -3,11 +3,15 @@ require 'thor'
 
 require_relative './clients/schedule'
 require_relative './subcommands/fabric'
+require_relative './subcommands/revisions'
 require_relative './subcommands/test'
 
 class XACLI < Thor
   desc 'fabric SUBCOMMAND ...ARGS', 'communicate with the fabric'
   subcommand 'fabric', Subcommands::Fabric
+
+  desc 'revisions SUBCOMMAND ...ARGS', 'communicate with the revisions service'
+  subcommand 'revisions', Subcommands::Revisions
 
   desc 'test SUBCOMMAND ...ARGS', 'run a structured test against the fabric'
   subcommand 'test', Subcommands::Test

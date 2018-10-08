@@ -2,49 +2,54 @@ require 'rainbow'
 
 module Support
   class Display
-    def self.info(m, tag = nil)
-      puts Rainbow("# #{maybe_with_tag(m, tag)}").silver
+    def self.info(m, tag = nil, args = {})
+      puts Rainbow("# #{maybe_with_tag_or_args(m, tag, args)}").silver
     end
 
-    def self.info_stage(m, tag = nil)
+    def self.info_stage(m, tag = nil, args = {})
       puts Rainbow("\n=> #{maybe_with_tag(m.upcase, tag)}").blue.bold
     end
 
-    def self.info_strong(m, tag = nil)
-      puts Rainbow("# #{maybe_with_tag(m, tag)}").green.bold
+    def self.info_strong(m, tag = nil, args = {})
+      puts Rainbow("# #{maybe_with_tag_or_args(m, tag, args)}").green.bold
     end
 
-    def self.error(m, tag = nil)
-      puts Rainbow("! #{maybe_with_tag(m, tag)}").red
+    def self.error(m, tag = nil, args = {})
+      puts Rainbow("! #{maybe_with_tag_or_args(m, tag, args)}").red
     end
 
-    def self.error_strong(m, tag = nil)
-      puts Rainbow("! #{maybe_with_tag(m, tag)}").red.bold
+    def self.error_strong(m, tag = nil, args = {})
+      puts Rainbow("! #{maybe_with_tag_or_args(m, tag, args)}").red.bold
     end
 
-    def self.warn(m, tag = nil)
-      puts Rainbow("? #{maybe_with_tag(m, tag)}").yellow
+    def self.warn(m, tag = nil, args = {})
+      puts Rainbow("? #{maybe_with_tag_or_args(m, tag, args)}").yellow
     end
 
-    def self.give(m, tag = nil)
-      puts Rainbow("> #{maybe_with_tag(m, tag)}").yellow
+    def self.give(m, tag = nil, args = {})
+      puts Rainbow("> #{maybe_with_tag_or_args(m, tag, args)}").yellow
     end
 
-    def self.got_ok(m, tag = nil)
-      puts Rainbow("< #{maybe_with_tag(m, tag)}").green
+    def self.got_ok(m, tag = nil, args = {})
+      puts Rainbow("< #{maybe_with_tag_or_args(m, tag, args)}").green
     end
 
-    def self.got_warn(m, tag = nil)
-      puts Rainbow("< #{maybe_with_tag(m, tag)}").yellow
+    def self.got_warn(m, tag = nil, args = {})
+      puts Rainbow("< #{maybe_with_tag_or_args(m, tag, args)}").yellow
     end
     
-    def self.got_fail(m, tag = nil)
-      puts Rainbow("< #{maybe_with_tag(m, tag)}").red
+    def self.got_fail(m, tag = nil, args = {})
+      puts Rainbow("< #{maybe_with_tag_or_args(m, tag, args)}").red
     end
 
     def self.got(resp)
       if resp.status == 200
-        got_ok(yield(resp.body))
+        m = yield(resp.body)
+        if m.class == Array
+          got_ok(*m)
+        else
+          got_ok(m)
+        end
       else
         got_fail('failed')
       end
@@ -52,8 +57,10 @@ module Support
 
     private
 
-    def self.maybe_with_tag(m, tag)
-      tag ? "(#{tag}) #{m}" : m
+    def self.maybe_with_tag_or_args(m, tag, args)
+      ms = tag ? "(#{tag}) #{m}" : m
+      as = args.any? ? args.map { |k, v| "#{k}=#{v}" }.join('; ') : nil
+      as ? "#{ms} [#{as}]" : ms
     end
   end
 end
