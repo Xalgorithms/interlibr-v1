@@ -30,9 +30,18 @@ module Clients
       remove('rule', args)
     end
 
-    def add_table(ns, name, content_fn)
+    def add_table(ns, name, content_fn, table_data_fn)
       Support::Display.info('adding table', 'revisions-client', ns: ns, name: name, fn: content_fn)
-      add('table', ns: ns, name: name, data: IO.read(content_fn))
+      args = {
+        ns: ns,
+        name: name,
+        data: IO.read(content_fn),
+        table_data: {
+          type: :json,
+          content: IO.read(table_data_fn),
+        }
+      }
+      add('table', args)
     end
 
     def remove_table(ns, name, ver, origin, branch)
@@ -47,28 +56,6 @@ module Clients
       remove('table', args)
     end
 
-    def add_data(ns, name, fn)
-      args = {
-        ns: ns,
-        name: name,
-        type: 'json',
-        data: IO.read(fn),
-      }
-      Support::Display.info('adding data', 'revisions-client', args)
-      add('data', args)
-    end
-    
-    def remove_data(ns, name, origin, branch)
-      args = {
-        ns: ns,
-        name: name,
-        origin: origin,
-        branch: branch,
-      }
-      Support::Display.info('removing data', 'revisions-client', args)
-      remove('data', args)
-    end
-    
     def add_repo(url)
       Support::Display.info('adding repository', 'revisions-client', url: url)
       add('repository', url: url)
