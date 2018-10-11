@@ -7,7 +7,7 @@ module Support
     end
 
     def self.info_stage(m, tag = nil, args = {})
-      puts Rainbow("\n=> #{maybe_with_tag(m.upcase, tag)}").blue.bold
+      puts Rainbow("\n=> #{maybe_with_tag_or_args(m.upcase, tag, args)}").blue.bold
     end
 
     def self.info_strong(m, tag = nil, args = {})
