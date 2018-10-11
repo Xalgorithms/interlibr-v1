@@ -9,7 +9,7 @@
     "url" : "http://localhost:5000"
   },
   "events" : {
-    "url" : "http://localhost:4200",
-    "ws_url" : "ws://localhost:4201"
+    "url" : "http://127.0.0.1:4200",
+    "ws_url" : "ws://127.0.0.1:4201"
   }
 }
