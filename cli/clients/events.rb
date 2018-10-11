@@ -28,7 +28,7 @@ module Clients
           Support::Display.give("connecting socket (url=#{url})", "events_client")
           ws = Faye::WebSocket::Client.new(url)
           ws.on(:open) do |evt|
-            #            p [:open, evt]
+            Support::Display.got_ok("received open", "events_client")
             ws.send(MultiJson.encode(name: 'confirm', payload: { id: resp.body['id'] }))
           end
 
