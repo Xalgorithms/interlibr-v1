@@ -1,0 +1,5 @@
+version: '3'
+
+services:
+  service-execute:    
+    image: xalgorithms/service-il-execute:0.0.7

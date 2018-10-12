@@ -1,9 +1,9 @@
 #!/bin/bash
 # This composition is for testing ALL THE services live
 if [ "$1" = "up" ]; then
-    docker-compose -f docker-compose-core.yml -f docker-compose-revisions.yml -f docker-compose-execute.yml -f docker-compose-schedule.yml -f docker-compose-query.yml -f docker-compose-events.yml up
+    docker-compose -f core.yml -f revisions.yml -f execute.yml -f schedule.yml -f query.yml -f events.yml up
 elif [ "$1" = "down" ]; then
-    docker-compose -f docker-compose-core.yml -f docker-compose-revisions.yml -f docker-compose-execute.yml -f docker-compose-schedule.yml -f docker-compose-query.yml -f docker-compose-events.yml down
+    docker-compose -f core.yml -f revisions.yml -f execute.yml -f schedule.yml -f query.yml -f events.yml down
 else
     echo "invalid action: $1"
 fi

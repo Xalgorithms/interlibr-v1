@@ -6,9 +6,9 @@
 # advertising itself as localhost, instead of the internal kafka
 # container.
 if [ "$1" = "up" ]; then
-    docker-compose -f docker-compose-core.yml -f docker-compose-revisions.yml -f values-core-expose-kafka.yml up
+    docker-compose -f core.yml -f revisions.yml -f values-core-expose-kafka.yml up
 elif [ "$1" = "down" ]; then
-    docker-compose -f docker-compose-core.yml -f docker-compose-revisions.yml -f values-core-expose-kafka.yml down
+    docker-compose -f core.yml -f revisions.yml -f values-core-expose-kafka.yml down
 else
     echo "invalid action: $1"
 fi

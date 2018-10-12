@@ -1,0 +1,5 @@
+version: '3'
+
+services:
+  service-events:    
+    image: xalgorithms/service-il-events:0.0.11-development

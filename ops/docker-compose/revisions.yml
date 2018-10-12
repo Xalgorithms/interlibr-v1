@@ -7,8 +7,18 @@ services:
     ports:
       - 5000:5000
     environment:
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+
+  worker-revisions:
+    image: xalgorithms/service-il-revisions-github:latest-development
+    command: bundle exec sidekiq -r ./all_jobs.rb
+    environment:
       CASSANDRA_HOSTS: "cassandra"
       MONGO_URL: "mongodb://mongo:27017/interlibr"
+      REDIS_URL: "redis://redis:6379"
     depends_on:
       - mongo
       - cassandra
+      - redis
