@@ -1,4 +1,4 @@
-REQUIRE test:table0:0.0.1 AS table0;
+REQUIRE map:table0:0.0.1 AS table0;
 
 ASSEMBLE t COLUMNS FROM table:table0;
 MAP table:t
