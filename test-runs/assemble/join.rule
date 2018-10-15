@@ -1,9 +1,0 @@
-META
-  VERSION "0.0.1"
-  MAINTAINER "Don Kelly <karfai@gmail.com>";
-  
-REQUIRE assemble:origin:0.0.1 AS table_origin;
-REQUIRE assemble:joiner:0.0.1 AS table_joiner;
-
-
-

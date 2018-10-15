@@ -1,4 +1,8 @@
-REQUIRE validate:validate:0.0.1 AS validate;
+META
+  VERSION "0.0.1"
+  MAINTAINER "Don Kelly <karfai@gmail.com>";
+
+REQUIRE validate:table0:0.0.1 AS table0;
 
 
 
