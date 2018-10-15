@@ -44,3 +44,6 @@
 [submodule "docs/examples"]
 	path = docs/examples
 	url = git@github.com:Xalgorithms/general-examples.git
+[submodule "libs/ubl-ruby"]
+	path = libs/ubl-ruby
+	url = git@github.com:Xalgorithms/lib-ubl-ruby.git
