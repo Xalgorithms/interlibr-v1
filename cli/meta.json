@@ -9,8 +9,10 @@
         "il.compute.revision",
         "il.verify.rule_execution",
         "il.verify.effective",
+        "il.verify.applicable",
         "il.emit.audit",
-        "il.emit.verification"
+        "il.emit.verification",
+        "il.audit.compute"
       ]
     },
     "cassandra" : {
@@ -29,7 +31,11 @@
         "il.compute.applicable",
         "il.compute.revision",
         "il.verify.rule_execution",
-        "il.emit.audit"
+        "il.verify.effective",
+        "il.verify.applicable",
+        "il.emit.audit",
+        "il.emit.verification",
+        "il.audit.compute"
       ]
     },
     "cassandra" : {
