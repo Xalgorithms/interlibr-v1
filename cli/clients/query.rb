@@ -11,6 +11,20 @@ module Clients
       end
     end
 
+    def rule(rule_id)
+      resp = @conn.get("/rules/#{rule_id}")
+      resp.status == 200 ? resp.body : nil
+    end
+
+    def rules_by_ns_name(ns, name)
+      resp = @conn.get("/namespaces/#{ns}/rules/by_name/#{name}")
+      resp.status == 200 ? resp.body : []
+    end
+
+    def rule_by_ns_name_version(ns, name, ver)
+      rules_by_ns_name(ns, name).select { |rule| rule['version'] == ver }.first
+    end
+    
     def last_step_by_request(req_id)
       resp = @conn.get("/requests/#{req_id}/traces")
       rv = nil
