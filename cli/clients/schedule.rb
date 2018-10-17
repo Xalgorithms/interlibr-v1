@@ -11,15 +11,33 @@ module Clients
       end
     end
     
-    def schedule(doc)
-      @conn.post('/actions', { name: 'document-add', payload: doc })
-    end
-
     def execute(ns, name, ver, ctx)
       o = {
         name: 'execute',
         args: { namespace: ns, name: name, version: ver },
-        payload: ctx,
+        document: ctx,
+      }
+
+      resp = @conn.post('/actions', o)
+      resp.status == 200 ? resp.body['request_id'] : nil
+    end
+
+    def verify_effective(doc, ctxs)
+      o = {
+        name: 'verify',
+        args: { what: 'effective' },
+        document: { content: doc, effective_contexts: ctxs },
+      }
+
+      resp = @conn.post('/actions', o)
+      resp.status == 200 ? resp.body['request_id'] : nil
+    end
+
+    def verify_applicable(rule_id, doc)
+      o = {
+        name: 'verify',
+        args: { what: 'applicable', rule_id: rule_id },
+        document: { content: doc },
       }
 
       resp = @conn.post('/actions', o)
