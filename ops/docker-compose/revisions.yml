@@ -22,3 +22,5 @@ services:
       - mongo
       - cassandra
       - redis
+    restart: always
+    
