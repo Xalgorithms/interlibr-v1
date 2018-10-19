@@ -47,3 +47,6 @@
 [submodule "libs/ubl-ruby"]
 	path = libs/ubl-ruby
 	url = git@github.com:Xalgorithms/lib-ubl-ruby.git
+[submodule "docs/project-management"]
+	path = docs/project-management
+	url = git@github.com:Xalgorithms/project-management.git
