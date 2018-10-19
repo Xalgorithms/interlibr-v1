@@ -1,11 +1,13 @@
 # Summary
 
 This is Interlibr - a document-oriented map/reduce platform for the
-Internet of Rules. The platform runs on Apache Mesos and is designed
-against the SMACK (Spark, Mesos, Akka, Cassandra, Kafka) collective of
+Internet of Rules. The platform runs on Kubernetes and Docker Compose
+(for development). It uses design concepts from the
+[SMACK](https://mesosphere.com/blog/smack-stack-new-lamp-stack/)
+(Spark, ~~Mesos~~, Akka, Cassandra, Kafka) collection of
 frameworks. This platform is [designed](./docs/arch-2.0.md) to retain,
 discover and execute [rules](./docs/xalgo.md) against documents
-(hierarchical key-value maps or JSON documents).
+(hierarchical key-value maps aka JSON documents).
 
 # Components
 
