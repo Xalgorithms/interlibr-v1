@@ -8,7 +8,6 @@ class Original < Support::SimpleMigration
       'CREATE TABLE interlibr.when_keys (section text, key text, refs counter, PRIMARY KEY (section, key))',
       'CREATE TABLE interlibr.whens (section text, key text, op text, val text, rule_id text, PRIMARY KEY (rule_id, section, key))',
       'CREATE TABLE interlibr.effective (country text, region text, timezone text, starts timestamp, ends timestamp, key text, rule_id text, PRIMARY KEY (rule_id, country, region, key))',
-      'CREATE TABLE interlibr.envelopes (document_id text, key text, country text, region text, timezone text, issued timestamp, PRIMARY KEY (document_id, key))',
     ]
   end
 end
