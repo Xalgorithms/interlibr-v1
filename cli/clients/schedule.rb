@@ -33,11 +33,11 @@ module Clients
       resp.status == 200 ? resp.body['request_id'] : nil
     end
 
-    def verify_applicable(rule_id, doc)
+    def verify_applicable(rule_id, doc, sections)
       o = {
         name: 'verify',
         args: { what: 'applicable', rule_id: rule_id },
-        document: { content: doc },
+        document: { content: doc, sections: sections },
       }
 
       resp = @conn.post('/actions', o)

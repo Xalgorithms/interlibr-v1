@@ -1,0 +1,34 @@
+{
+  "document" : {
+    "x" : {
+      "y": "Y",
+      "z" : "Z"
+    },
+    "q" : {
+      "items" : [
+        {
+          "a" : 1,
+          "b" : 2,
+          "c" : 3
+        },
+        {
+          "a" : 2,
+          "b" : 4,
+          "c" : 6
+        }
+      ]
+    }
+  },
+  "effective_contexts" : [
+    {
+      "key" : "key0",
+      "country" : "CA",
+      "region" : "ON",
+      "timezone" : "America/Toronto",
+      "issued" : "2018-10-15T18:59:07+04:00"
+    }
+  ],
+  "sections" : {
+    "items" : { "path" : "q.items", "match" : "all" }
+  }
+}

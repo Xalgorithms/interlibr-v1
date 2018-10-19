@@ -2,6 +2,15 @@ META
   VERSION "0.0.1"
   MAINTAINER "Don Kelly <karfai@gmail.com>";
 
+WHEN items:a == 1;
+
+EFFECTIVE
+  IN "CA-ON"
+  FROM "2018-04-01T00:00"
+  TO "9999-12-30T23:59"
+  TIMEZONE "America/Toronto"
+  FOR "key0";
+
 REQUIRE validate:table0:0.0.1 AS table0;
 
 
