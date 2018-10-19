@@ -5,7 +5,7 @@ module Init
   class Cassandra
     def self.init(opts)
       cl = Support::Cassandra.new(opts.url)
-      Dir.glob('migrations/*.rb').each do |fn|
+      Dir.glob('migrations/*.rb').sort.each do |fn|
         require_relative("../#{fn}")
         name = File.basename(fn)
         m = /^[0-9]+\_(.+)\.rb$/.match(name)
