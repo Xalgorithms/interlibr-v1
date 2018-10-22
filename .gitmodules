@@ -41,12 +41,12 @@
 [submodule "ops/charts"]
 	path = ops/charts
 	url = git@github.com:Xalgorithms/charts.git
-[submodule "docs/examples"]
-	path = docs/examples
-	url = git@github.com:Xalgorithms/general-examples.git
 [submodule "libs/ubl-ruby"]
 	path = libs/ubl-ruby
 	url = git@github.com:Xalgorithms/lib-ubl-ruby.git
 [submodule "docs/project-management"]
 	path = docs/project-management
 	url = git@github.com:Xalgorithms/project-management.git
+[submodule "examples"]
+	path = examples
+	url = git@github.com:Xalgorithms/general-examples.git
