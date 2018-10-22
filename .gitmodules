@@ -30,10 +30,6 @@
 	path = services/execute
 	url = git@github.com:Xalgorithms/service-il-execute.git
 	branch = master
-[submodule "docs/general"]
-	path = docs/general
-	url = git@github.com:Xalgorithms/general-documentation.git
-	branch = master
 [submodule "libs/storage"]
 	path = libs/storage
 	url = git@github.com:Xalgorithms/lib-storage.git
