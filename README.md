@@ -27,3 +27,62 @@ support libraries:
 | [Storage](https://github.com/Xalgorithms/lib-storage)                              | lib        | Scala      |                   | Common storage library for Cassandra, Mongo; used by the Scala services |
 |                                                                                    |            |            |                   |                                                                         |
 
+# Running the platform
+
+## Development
+
+The team uses Docker Compose to instantiate *local* compositions of containers
+in [ops/docker-compose](./ops/docker-compose) for testing purposes. A number of
+different configurations have been designed for some specific cases.
+
+* *compose.core*: This script loads a composition that contains the *core*,
+  *external* services that are used by our services. This includes Kafka,
+  Cassandra, MongoDB, etc. It is intended to be used when doing development work
+  on one or more of our core services (schedule, execute, etc). In this
+  composition, Kakfa *advertises* itself as localhost thus allowing services
+  that are under development to contact the brokers as localhost. In *all other
+  compositions*, Kakfa advertises itself as "kafka", therefore it can *only* be
+  used *within the composition.
+
+* *compose.core.revisions*: This is similar to *compose.core* except that the
+  revisions service is added to the composition. Very often, features will
+  either affect revisions *or* the compute-related services (schedule, execute,
+  query, events). Using this composition saves running a few services locally.
+
+* *compose.core.services*: This is *compose.core* with **all** of the Interlibr
+  services running. It is, essentially, the *entire* platorm running *except*
+  any of the Spark jobs. This composition is taxing for some machines and is
+  recommended *only* for development-class workstations. Typically, this
+  composition is used for *end-to-end testing*.
+
+* *compose.core.services.publish*: This is exactly the same as
+  *compose.core.services* except that it **does not run** the latest development
+  container as published on Docker Hub, it runs the *published* version which
+  would be run in production. This composition is typically used for
+  *demonstrations*. Since the production platform is run on Google Container
+  Engine (Kubernetes) there are some differences between this composition and a
+  real *production instance*, therefore it is not recommended that this
+  composition be used to run a production instance of Interlibr.
+
+To run any of these compositions, merely invoke the script from a shell with the
+`up` or `down` option:
+
+```
+$ ./compose.core.sh up
+```
+
+Use `docker ps` or read the configuration files to learn which `localhost` ports
+each service is running on. For example:
+
+```
+CONTAINER ID        IMAGE                             COMMAND                  CREATED             STATUS              PORTS                                                       NAMES
+daeeeb08487e        confluentinc/cp-kafka:5.0.0       "/etc/confluent/dock…"   15 seconds ago      Up 13 seconds       0.0.0.0:9092->9092/tcp                                      docker-compose_kafka_1
+22f5ed1a6532        cassandra:3.11                    "docker-entrypoint.s…"   17 seconds ago      Up 14 seconds       7000-7001/tcp, 7199/tcp, 9160/tcp, 0.0.0.0:9042->9042/tcp   docker-compose_cassandra_1
+ba59087b5dc0        confluentinc/cp-zookeeper:5.0.0   "/etc/confluent/dock…"   17 seconds ago      Up 14 seconds       2888/tcp, 0.0.0.0:2181->2181/tcp, 3888/tcp                  docker-compose_zookeeper_1
+829b61928019        bitnami/redis:4.0-debian-9        "/entrypoint.sh /run…"   17 seconds ago      Up 14 seconds       0.0.0.0:6379->6379/tcp                                      docker-compose_redis_1
+a2fa9a670283        mongo:3.6                         "docker-entrypoint.s…"   17 seconds ago      Up 14 seconds       0.0.0.0:27017->27017/tcp                                    docker-compose_mongo_1
+```
+
+Most of the CLI [cli/](./cli) tools have default options that assume you are
+running one of these compositions, permitting you to omit `host:port`
+configuration for simple testing.
