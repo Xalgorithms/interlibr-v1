@@ -83,6 +83,6 @@ ba59087b5dc0        confluentinc/cp-zookeeper:5.0.0   "/etc/confluent/dock…"  
 a2fa9a670283        mongo:3.6                         "docker-entrypoint.s…"   17 seconds ago      Up 14 seconds       0.0.0.0:27017->27017/tcp                                    docker-compose_mongo_1
 ```
 
-Most of the CLI [cli/](./cli) tools have default options that assume you are
+Most of the CLI ([cli/](./cli)) tools have default options that assume you are
 running one of these compositions, permitting you to omit `host:port`
 configuration for simple testing.
