@@ -86,3 +86,58 @@ a2fa9a670283        mongo:3.6                         "docker-entrypoint.s…"  
 Most of the CLI ([cli/](./cli)) tools have default options that assume you are
 running one of these compositions, permitting you to omit `host:port`
 configuration for simple testing.
+
+# End-to-end testing
+
+The platform [CLI tool](./cli) has commands for performing end-to-end
+testing. These commands work against a file and directory layout called a
+*test-run*. These test runs contain rules and small files that outline
+*expectations* of output when some aspect of Interlibr is executed against those
+rules.
+
+The support for executing test runs is part of the `test` command included in
+the Interlibr CLI. To execute a `test` against a `test-run` in the `cli`
+directory:
+
+```
+$ bundle exec xa test <name> <path> <profile>
+```
+
+Each test has two specific arguments:
+
+* `<path>`: a path to a test-run directory. Our basic end-to-end-tests are kept
+  in [`test-runs/`](./test-runs).
+
+* `<profile>`: this is a reference to a JSON configuration file in the
+  [`profiles/`](./cli/profiles) directory. This file contains common
+  configuration options that *may be used* during a test (for example, the URL
+  for a service).
+
+There are several tests available to run. The name of one of these tests should
+appear in the `<name>` argument:
+
+* `exec`: This test will upload all of the rules (Xalgo or tables) to the
+  revisions service, make a request to the *schedule* service to execute the
+  rule against a configured *execution context*, wait for a result from the the
+  *events* service and verify the results against the configured
+  expectations. If no expectations are configured for the test run, then the
+  final contents of the *execution context* will be printed to the screen.
+
+* `effective`: This test also uploads all rules and listens for results from the
+  events service. It makes a submission to the schedule service that submits to
+  the [Effective Spark Job](https://github.com/Xalgorithms/services-il-jobs) in
+  validation mode. For this test to work correctly, the ValidateEffectiveRules
+  Spark job **must be running** within the local Spark master. Instructions for
+  running this job appear in the
+  [README](https://github.com/Xalgorithms/services-il-jobs/blob/master/README.md)
+  for that project.
+
+
+* `applicable`: This test also uploads all rules and listens for results from
+  the events service. It makes a submission to the schedule service that submits
+  to the [Applicable Spark Job](https://github.com/Xalgorithms/services-il-jobs)
+  in validation mode. For this test to work correctly, the
+  ValidateApplicableRules Spark job **must be running** within the local Spark
+  master. Instructions for running this job appear in the
+  [README](https://github.com/Xalgorithms/services-il-jobs/blob/master/README.md)
+  for that project.
