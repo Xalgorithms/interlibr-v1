@@ -2,4 +2,4 @@ META
   VERSION "0.0.1"
   MAINTAINER "Don Kelly <karfai@gmail.com>";
 
-DATA origin.json 5071d3ac04ea2be8eafd8b23b3c9336a;
+DATA table0.json ;

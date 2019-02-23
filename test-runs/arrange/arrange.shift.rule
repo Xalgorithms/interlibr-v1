@@ -1,0 +1,9 @@
+META
+  VERSION "0.0.1"
+  MAINTAINER "Don Kelly <karfai@gmail.com>";
+
+REQUIRE refine:table0:0.0.1 AS table0;
+
+ARRANGE table:table0 AS table_shift_r3 USING shift(3);
+ARRANGE table:table0 AS table_shift_l9 USING shift(-9);
+ARRANGE table:table0 AS table_invert USING invert();

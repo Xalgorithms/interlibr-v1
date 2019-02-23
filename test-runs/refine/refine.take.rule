@@ -1,0 +1,14 @@
+META
+  VERSION "0.0.1"
+  MAINTAINER "Don Kelly <karfai@gmail.com>";
+
+REQUIRE refine:table0:0.0.1 AS table0;
+
+REFINE table:table0 AS table1
+  TAKE first(3);
+
+REFINE table:table0 AS table2
+  TAKE nth(1, 3);
+
+REFINE table:table0 AS table3
+  TAKE a == 3;
