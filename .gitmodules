@@ -46,3 +46,6 @@
 [submodule "docs"]
 	path = docs
 	url = git@github.com:Xalgorithms/general-documentation.git
+[submodule "docs-site"]
+	path = docs-site
+	url = git@github.com:Xalgorithms/docs-site.git
