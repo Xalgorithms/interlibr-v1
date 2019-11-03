@@ -1,0 +1,10 @@
+{
+  "customer" : {
+    "name" : "Bob Smith",
+    "location" : { "region" : "ON" }
+  },
+  "items" : [
+    { "name" : "Thing1", "price" : 11.99 },
+    { "name" : "Thing2", "price" : 47.00 }
+  ]
+}

@@ -1,0 +1,22 @@
+META
+  VERSION "0.0.1"
+  MAINTAINER "Don Kelly <karfai@gmail.com>";
+
+REQUIRE regional_sales_tax:canada_vats:0.0.1 AS canada_vats;
+REQUIRE regional_sales_tax:sales_taxes_by_region:0.0.1 AS regional_sales_taxes;
+
+ASSEMBLE hsts
+  COLUMNS (region, hst, pst) FROM table:regional_sales_taxes
+  COLUMN vat from table:canada_vats;
+
+MAP table:hsts USING hst=add(@pst, @vat);
+
+ASSEMBLE applied_taxes
+  COLUMNS (name, price) FROM table:items
+  COLUMNS (region, hst) FROM table:hsts;
+
+FILTER table:applied_taxes
+  WHEN customer:location.region==@region;
+
+MAP table:applied_taxes
+  USING total=add(@price, multiply(@price, @hst));
