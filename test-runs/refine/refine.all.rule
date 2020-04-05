@@ -4,7 +4,7 @@ META
 
 REQUIRE refine:table0:0.0.1 AS table0;
 
-REFINE table:table0 AS table1
+REFINE table0 AS table1
   FILTER a <= 4
   FILTER a > 1
   MAP c = b
