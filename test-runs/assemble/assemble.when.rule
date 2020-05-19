@@ -1,0 +1,17 @@
+META
+  VERSION "0.0.1"
+  MAINTAINER "Don Kelly <karfai@gmail.com>";
+
+REQUIRE assemble:origin:0.0.1 AS table_origin;
+REQUIRE assemble:join:0.0.1 AS table_join;
+
+ASSEMBLE table0
+  COLUMNS FROM table_origin;
+
+ASSEMBLE table1
+  COLUMNS (a, c) FROM table_origin
+  COLUMN p FROM table_join WHEN @p=="p0";
+
+ASSEMBLE table2
+  COLUMNS (a, c) FROM table_origin
+  COLUMN d FROM table_match WHEN @aa==@a;
