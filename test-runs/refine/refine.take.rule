@@ -11,4 +11,4 @@ REFINE table0 AS table2
   TAKE nth(1, 3);
 
 REFINE table0 AS table3
-  TAKE a == 3;
+  TAKE @a == 3;
