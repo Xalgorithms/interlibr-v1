@@ -1,0 +1,5 @@
+[
+  { "code" : "standard",      "charge" : 4, "min_value" : 0     },
+  { "code" : "standard_free", "charge" : 0, "min_value" : 99.99 },
+  { "code" : "non_standard",  "charge" : 5, "min_value" : 0     }
+]

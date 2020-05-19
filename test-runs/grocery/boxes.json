@@ -1,0 +1,8 @@
+[
+  { "id": 1, "box" : "standard",     "volume" : 2, "weight" : 5,  "value" : 100 },
+  { "id": 2, "box" : "standard",     "volume" : 5, "weight" : 6,  "value" : 105 },
+  { "id": 3, "box" : "non_standard", "volume" : 7, "weight" : 10, "value" : 300 },
+  { "id": 4, "box" : "non_standard", "volume" : 3, "weight" : 6,  "value" : 200 },
+  { "id": 5, "box" : "standard",     "volume" : 5, "weight" : 6,  "value" : 75  },
+  { "id": 6, "box" : "standard",     "volume" : 6, "weight" : 6,  "value" : 120 }
+]

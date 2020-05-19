@@ -1,0 +1,4 @@
+[
+  { "name" : "standard",      "capacity" : 6 },
+  { "name" : "non_standard",  "capacity" : 8 }
+]

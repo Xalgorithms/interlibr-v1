@@ -1,0 +1,42 @@
+META
+  VERSION "0.0.1"
+  MAINTAINER "Don Kelly <karfai@gmail.com>";
+
+REQUIRE grocery:boxes:0.0.1 AS boxes;
+REQUIRE grocery:types:0.0.1 AS types;
+REQUIRE grocery:costs:0.0.1 AS costs;
+
+ASSEMBLE possibilities
+  COLUMNS FROM boxes
+  COLUMNS FROM types
+  COLUMNS FROM costs;
+
+# standard_free w/ '_' because '-' fails to be a string in the parser
+REFINE possibilities AS standard_boxes_with_free
+  FILTER @box==@name
+  FILTER @code=="standard_free"
+  FILTER @name=="standard";
+
+REFINE standard_boxes_with_free AS standard_boxes_over_value
+  FILTER @value>@min_value
+  MAP over_cap=subtract(@volume, divide(@capacity, 2));
+
+# wart b/c we can't seem to access @over_cap ^^ - probably a bug
+REFINE standard_boxes_over_value AS free_deliveries
+  MAP free_id=@id
+  FILTER @over_cap>0;
+
+# ^^ charge_id map is to avoid collision below
+
+# COLUMN charge FROM costs WHEN @code==@box;
+# doesn't work ^^ - can't use a column to join
+ASSEMBLE charges
+  COLUMNS FROM boxes
+  COLUMNS (code, charge) FROM costs;
+
+REFINE charges AS normal_charges
+  FILTER @code==@box;
+
+ASSEMBLE charges_with_free
+  COLUMNS (charge_id, charge, weight) FROM free_deliveries;
+  COLUMNS
