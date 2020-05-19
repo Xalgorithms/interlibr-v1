@@ -4,9 +4,9 @@ META
 
 REQUIRE refine:table0:0.0.1 AS table0;
 
-ARRANGE table0 AS table_sort_a USING sort(a, "numeric");
-ARRANGE table0 AS table_sort_a_dsc USING sort(a, "numeric", "descending");
-ARRANGE table0 AS table_sort_b USING sort(b);
-ARRANGE table0 AS table_sort_b_dsc USING sort(b, "alpha", "descending");
-ARRANGE table0 AS table_sort_c USING sort(c);
-ARRANGE table0 AS table_sort_bc USING sort(add(b, c), "alpha");
+ARRANGE table0 AS table_sort_a USING sort(@a, "numeric");
+ARRANGE table0 AS table_sort_a_dsc USING sort(@a, "numeric", "descending");
+ARRANGE table0 AS table_sort_b USING sort(@b);
+ARRANGE table0 AS table_sort_b_dsc USING sort(@b, "alpha", "descending");
+ARRANGE table0 AS table_sort_c USING sort(@c);
+ARRANGE table0 AS table_sort_bc USING sort(add(@b, @c), "alpha");
